@@ -4,7 +4,7 @@ using TaskAide.Domain.Entities;
 
 namespace TaskAide.Domain.Repositories
 {
-    public interface IAsyncRepository<T> where T : BaseEntity
+    public interface IAsyncRepository<T>
     {
         Task<T> AddAsync(T entity);
 
@@ -12,7 +12,7 @@ namespace TaskAide.Domain.Repositories
 
         Task DeleteAsync(T entity);
 
-        Task<T> GetAsync(Expression<Func<T, bool>> expression);
+        Task<T?> GetAsync(Expression<Func<T, bool>> expression);
 
         Task<List<T>> ListAsync(Expression<Func<T, bool>> expression);
     }

@@ -6,3 +6,9 @@
 /TaskAide/TaskAide.API/obj
 /.vs
 /TaskAide/.vs/TaskAide/v17
+/TaskAide/TaskAide.API/bin/Debug/net6.0
+/TaskAide/.vs/TaskAide/DesignTimeBuild
+/TaskAide/TaskAide.Domain/bin/Debug/net6.0
+/TaskAide/TaskAide.Domain/obj/Debug/net6.0/ref
+/TaskAide/TaskAide.Domain/obj/Debug/net6.0/refint
+/TaskAide/TaskAide.Infrastructure/bin/Debug/net6.0
