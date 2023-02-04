@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TaskAide.API.Handlers;
 using TaskAide.API.Services.Auth;
 using TaskAide.Domain.Entities.Users;
 using TaskAide.Infrastructure.Data;
@@ -42,6 +43,7 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthDbSeeder>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,5 +64,7 @@ var db = app.Services.CreateScope().ServiceProvider.GetRequiredService<TaskAideC
 db.Database.Migrate();
 var dbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<AuthDbSeeder>();
 await dbSeeder.SeedAsync();
+
+app.UseMiddleware<ExceptionHandler>();
 
 app.Run();

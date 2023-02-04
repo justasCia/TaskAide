@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TaskAide.API.DTOs.Auth;
 using TaskAide.Domain.Entities.Users;
+using TaskAide.Domain.Exceptions;
 
 namespace TaskAide.API.Services.Auth
 {
@@ -19,14 +20,14 @@ namespace TaskAide.API.Services.Auth
         {
             if (!Roles.All.Contains(registerUser.Role) || registerUser.Role == Roles.Admin)
             {
-                throw new BadHttpRequestException($"Could not create user with {registerUser.Role} role.");
+                throw new BadRequestException($"Could not create user with {registerUser.Role} role.");
             }
 
             var user = await _userManager.FindByEmailAsync(registerUser.Email);
 
             if (user != null)
             {
-                throw new BadHttpRequestException("Email already taken.");
+                throw new BadRequestException("Email already taken.");
             }
 
             var newUser = new User
@@ -38,7 +39,7 @@ namespace TaskAide.API.Services.Auth
             var createUserResult = await _userManager.CreateAsync(newUser, registerUser.Password);
             if (!createUserResult.Succeeded)
             {
-                throw new BadHttpRequestException("Could not create a user.");
+                throw new BadRequestException("Could not create a user.");
             }
 
             await _userManager.AddToRoleAsync(newUser, registerUser.Role);
@@ -52,14 +53,14 @@ namespace TaskAide.API.Services.Auth
 
             if (user == null)
             {
-                throw new BadHttpRequestException("User with such email or password not found.");
+                throw new NotFoundException("User with such email or password not found.");
             }
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginUser.Password);
 
             if (!isPasswordValid)
             {
-                throw new BadHttpRequestException("User with such email or password not found.");
+                throw new NotFoundException("User with such email or password not found.");
             }
 
             var roles = await _userManager.GetRolesAsync(user);
