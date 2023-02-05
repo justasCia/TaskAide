@@ -31,5 +31,12 @@ namespace TaskAide.API.Controllers
         {
             return Ok(await _authService.LoginUserAsync(loginUserDto));
         }
+
+        [HttpPost]
+        [Route("refreshToken")]
+        public async Task<IActionResult> RefreshToken(TokenDto tokenDto)
+        {
+            return Ok(await _authService.RefreshToken(tokenDto)); 
+        }
     }
 }

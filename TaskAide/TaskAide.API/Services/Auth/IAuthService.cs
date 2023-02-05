@@ -6,6 +6,8 @@ namespace TaskAide.API.Services.Auth
     {
         public Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser);
 
-        public Task<string> LoginUserAsync(LoginUserDto loginUser);
+        public Task<TokenDto> LoginUserAsync(LoginUserDto loginUser);
+
+        public Task<TokenDto> RefreshToken(TokenDto tokenDto);
     }
 }
