@@ -71,6 +71,9 @@ namespace TaskAide.API.Services.Auth
                 throw new NotFoundException("User with such email or password not found.");
             }
 
+            var expiredUserRefreshTokens = await _refreshTokenRepository.ListAsync(rt => rt.UserId == user.Id && rt.RefreshTokenExpiryTime < DateTime.Now);
+            await _refreshTokenRepository.DeleteListAsync(expiredUserRefreshTokens);
+
             return await GenerateToken(user);
         }
 
@@ -82,13 +85,8 @@ namespace TaskAide.API.Services.Auth
             string refreshToken = tokenDto.RefreshToken;
 
             var principal = _jwtTokenService.GetPrincipalFromExpiredToken(accessToken);
-
-            if (principal == null)
-            {
-                //TODO
-            }
-
             var email = principal.FindFirstValue(ClaimTypes.Email);
+
             var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
@@ -114,14 +112,10 @@ namespace TaskAide.API.Services.Auth
 
             var accessToken = _jwtTokenService.GenerateAccessToken(user.Email, user.Id, roles);
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
-            var validTo = new JwtSecurityTokenHandler().ReadJwtToken(accessToken).ValidTo;
 
-            user.RefreshTokens.Add(new RefreshToken() { Token = refreshToken, RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenValidityInDays) });
-            //user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenValidityInDays);
+            await _refreshTokenRepository.AddAsync(new RefreshToken() { Token = refreshToken, RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenValidityInDays), UserId = user.Id });
 
-            await _userManager.UpdateAsync(user);
-
-            return new TokenDto(accessToken, refreshToken, validTo);
+            return new TokenDto(accessToken, refreshToken);
         }
     }
 }

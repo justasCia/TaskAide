@@ -8,7 +8,7 @@ namespace TaskAide.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IAsyncRepository<T> where T : BaseEntity
     {
-        private readonly TaskAideContext _dbContext;
+        protected readonly TaskAideContext _dbContext;
 
         public BaseRepository(TaskAideContext dbContext)
         {
@@ -44,6 +44,12 @@ namespace TaskAide.Infrastructure.Repositories
         public async Task<List<T>> ListAsync(Expression<Func<T, bool>> expression)
         {
             return await _dbContext.Set<T>().ToListAsync();
+        }
+
+        public async Task DeleteListAsync(List<T> entities)
+        {
+            _dbContext.RemoveRange(entities);
+            await SaveChanges();
         }
 
         private async Task SaveChanges()

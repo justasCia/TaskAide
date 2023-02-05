@@ -15,5 +15,7 @@ namespace TaskAide.Domain.Repositories
         Task<T?> GetAsync(Expression<Func<T, bool>> expression);
 
         Task<List<T>> ListAsync(Expression<Func<T, bool>> expression);
+
+        Task DeleteListAsync(List<T> entities);
     }
 }

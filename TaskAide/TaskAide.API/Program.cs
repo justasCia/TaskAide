@@ -7,7 +7,9 @@ using System.Text;
 using TaskAide.API.Handlers;
 using TaskAide.API.Services.Auth;
 using TaskAide.Domain.Entities.Users;
+using TaskAide.Domain.Repositories;
 using TaskAide.Infrastructure.Data;
+using TaskAide.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,7 @@ builder.Services.AddDbContext<TaskAideContext>(options =>
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<TaskAideContext>()
     .AddDefaultTokenProviders();
+builder.Services.AddScoped<IRefrehTokenRepository, RefreshTokenRepository>();
 
 builder.Services.AddAuthentication(options =>
 {

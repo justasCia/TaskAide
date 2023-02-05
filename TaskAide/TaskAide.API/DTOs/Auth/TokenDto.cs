@@ -4,13 +4,11 @@
     {
         public string AccessToken { get;}
         public string RefreshToken { get; }
-        public DateTime ValidTo { get; }
 
-        public TokenDto(string accessToken, string refreshToken, DateTime validTo)
+        public TokenDto(string accessToken, string refreshToken)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;
-            ValidTo = validTo;
         }
     }
 }
