@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using TaskAide.API.Common;
 using TaskAide.API.DTOs.Auth;
 using TaskAide.Domain.Entities.Auth;
 using TaskAide.Domain.Entities.Users;
 using TaskAide.Domain.Exceptions;
 using TaskAide.Domain.Repositories;
+using TaskAide.Domain.Services;
 
 namespace TaskAide.API.Services.Auth
 {
@@ -13,15 +15,17 @@ namespace TaskAide.API.Services.Auth
     {
         private readonly UserManager<User> _userManager;
         private readonly IJwtTokenService _jwtTokenService;
-        private readonly int _refreshTokenValidityInDays;
         private readonly IRefrehTokenRepository _refreshTokenRepository;
+        private readonly IEncryptionService _encryptionService;
+        private readonly int _refreshTokenValidityInDays;
 
-        public AuthService(UserManager<User> userManager, IJwtTokenService jwtTokenService, IRefrehTokenRepository refreshTokenRepository, IConfiguration configuration)
+        public AuthService(UserManager<User> userManager, IJwtTokenService jwtTokenService, IRefrehTokenRepository refreshTokenRepository, IEncryptionService encryptionService, IConfiguration configuration)
         {
             _userManager = userManager;
             _jwtTokenService = jwtTokenService;
             _refreshTokenRepository = refreshTokenRepository;
-            _refreshTokenValidityInDays = int.Parse(configuration["JWT:RefreshTokenValidityInDays"] ?? "1");
+            _encryptionService = encryptionService;
+            _refreshTokenValidityInDays = int.Parse(configuration[Constants.Configuration.Jwt.RefreshTokenValidityInDays] ?? "1");
         }
 
         public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser)
@@ -94,7 +98,8 @@ namespace TaskAide.API.Services.Auth
                 throw new BadRequestException("Invalid access token or refresh token");
             }
 
-            var dbRefreshToken = await _refreshTokenRepository.GetAsync(rt => rt.Token == refreshToken && rt.UserId == user.Id);
+            var dbRefreshTokens = await _refreshTokenRepository.ListAsync(rt => rt.UserId == user.Id);
+            var dbRefreshToken = dbRefreshTokens.FirstOrDefault(rt => _encryptionService.DecryptString(rt.Token) == refreshToken);
 
             if (dbRefreshToken == null || dbRefreshToken.RefreshTokenExpiryTime < DateTime.Now)
             {
@@ -113,7 +118,12 @@ namespace TaskAide.API.Services.Auth
             var accessToken = _jwtTokenService.GenerateAccessToken(user.Email, user.Id, roles);
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
 
-            await _refreshTokenRepository.AddAsync(new RefreshToken() { Token = refreshToken, RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenValidityInDays), UserId = user.Id });
+            await _refreshTokenRepository.AddAsync(new RefreshToken()
+            {
+                Token = _encryptionService.EncryptString(refreshToken),
+                RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenValidityInDays),
+                UserId = user.Id
+            });
 
             return new TokenDto(accessToken, refreshToken);
         }

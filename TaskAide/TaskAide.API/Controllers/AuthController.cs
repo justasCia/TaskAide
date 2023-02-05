@@ -26,11 +26,17 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpPost]
-        [Route("login")]
-        public async Task<IActionResult> Login(LoginUserDto loginUserDto)
+        [Route("signin")]
+        public async Task<IActionResult> Signin(LoginUserDto loginUserDto)
         {
             return Ok(await _authService.LoginUserAsync(loginUserDto));
         }
+
+        //[HttpPost]
+        //[Route("signin-google")]
+        //public async Task<IActionResult> SigninGoogle(LoginUserDto loginUserDto)
+        //{
+        //}
 
         [HttpPost]
         [Route("refreshToken")]

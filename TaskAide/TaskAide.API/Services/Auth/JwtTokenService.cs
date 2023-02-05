@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using TaskAide.API.Common;
 
 namespace TaskAide.API.Services.Auth
 {
@@ -15,10 +16,10 @@ namespace TaskAide.API.Services.Auth
 
         public JwtTokenService(IConfiguration configuration)
         {
-            _authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? ""));
-            _issuer = configuration["JWT:ValidIssuer"] ?? "";
-            _audience = configuration["JWT:ValidAudience"] ?? "";
-            _accessTokenValidityInMinutes = int.Parse(configuration["JWT:AccessTokenValidityInMinutes"] ?? "1");
+            _authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration[Constants.Configuration.Jwt.Secret] ?? ""));
+            _issuer = configuration[Constants.Configuration.Jwt.ValidIssuer] ?? "";
+            _audience = configuration[Constants.Configuration.Jwt.ValidAudience] ?? "";
+            _accessTokenValidityInMinutes = int.Parse(configuration[Constants.Configuration.Jwt.AccessTokenValidityInMinutes] ?? "1");
         }
 
         public string GenerateAccessToken(string email, string userId, IEnumerable<string> userRoles)
