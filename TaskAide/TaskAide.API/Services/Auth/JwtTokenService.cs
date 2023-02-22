@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TaskAide.API.Common;
+using TaskAide.Domain.Entities.Users;
 
 namespace TaskAide.API.Services.Auth
 {
@@ -22,16 +23,18 @@ namespace TaskAide.API.Services.Auth
             _accessTokenValidityInMinutes = int.Parse(configuration[Constants.Configuration.Jwt.AccessTokenValidityInMinutes] ?? "1");
         }
 
-        public string GenerateAccessToken(string email, string userId, IEnumerable<string> userRoles)
+        public string GenerateAccessToken(User user, IEnumerable<string> userRoles)
         {
             var authClaims = new List<Claim>
             {
-                new(ClaimTypes.Email, email),
+                new("email", user.Email),
+                new("firstName", user.FirstName),
+                new("lastName", user.LastName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Sub, userId)
+                new(JwtRegisteredClaimNames.Sub, user.Id)
             };
 
-            authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+            authClaims.AddRange(userRoles.Select(userRole => new Claim("role", userRole)));
 
             var accessSecurityToken = new JwtSecurityToken
             (

@@ -30,10 +30,10 @@ namespace TaskAide.API.Services.Auth
 
         public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser)
         {
-            if (!Roles.All.Contains(registerUser.Role) || registerUser.Role == Roles.Admin)
-            {
-                throw new BadRequestException($"Could not create user with {registerUser.Role} role.");
-            }
+            //if (!Roles.All.Contains(registerUser.Role) || registerUser.Role == Roles.Admin)
+            //{
+            //    throw new BadRequestException($"Could not create user with {registerUser.Role} role.");
+            //}
 
             var user = await _userManager.FindByEmailAsync(registerUser.Email);
 
@@ -44,6 +44,9 @@ namespace TaskAide.API.Services.Auth
 
             var newUser = new User
             {
+                FirstName = registerUser.FirstName,
+                LastName = registerUser.LastName,
+                PhoneNumber = registerUser.PhoneNumber,
                 Email = registerUser.Email,
                 UserName = registerUser.Email
             };
@@ -54,7 +57,7 @@ namespace TaskAide.API.Services.Auth
                 throw new BadRequestException("Could not create a user.");
             }
 
-            await _userManager.AddToRoleAsync(newUser, registerUser.Role);
+            await _userManager.AddToRoleAsync(newUser, Roles.Client);
 
             return new UserDto() { Email = newUser.Email };
         }
@@ -89,7 +92,7 @@ namespace TaskAide.API.Services.Auth
             string refreshToken = tokenDto.RefreshToken;
 
             var principal = _jwtTokenService.GetPrincipalFromExpiredToken(accessToken);
-            var email = principal.FindFirstValue(ClaimTypes.Email);
+            var email = principal.FindFirstValue("email");
 
             var user = await _userManager.FindByEmailAsync(email);
 
@@ -115,7 +118,7 @@ namespace TaskAide.API.Services.Auth
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            var accessToken = _jwtTokenService.GenerateAccessToken(user.Email, user.Id, roles);
+            var accessToken = _jwtTokenService.GenerateAccessToken(user, roles);
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
 
             await _refreshTokenRepository.AddAsync(new RefreshToken()
@@ -125,7 +128,7 @@ namespace TaskAide.API.Services.Auth
                 UserId = user.Id
             });
 
-            return new TokenDto(accessToken, refreshToken);
+            return new TokenDto(accessToken, refreshToken, DateTime.Now.AddDays(_refreshTokenValidityInDays));
         }
     }
 }

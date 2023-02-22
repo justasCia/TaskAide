@@ -29,7 +29,16 @@ namespace TaskAide.API.Controllers
         [Route("signin")]
         public async Task<IActionResult> Signin(LoginUserDto loginUserDto)
         {
-            return Ok(await _authService.LoginUserAsync(loginUserDto));
+            var token = await _authService.LoginUserAsync(loginUserDto);
+            var cookieOptions = new CookieOptions()
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = false,
+                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate)
+            };
+            Response.Cookies.Append("refreshToken", token.RefreshToken, cookieOptions);
+            return Ok(new { accessToken = token.AccessToken });
         }
 
         //[HttpPost]
@@ -40,9 +49,25 @@ namespace TaskAide.API.Controllers
 
         [HttpPost]
         [Route("refreshToken")]
-        public async Task<IActionResult> RefreshToken(TokenDto tokenDto)
+        public async Task<IActionResult> RefreshToken(RefreshTokenDto refreshTokenDto)
         {
-            return Ok(await _authService.RefreshToken(tokenDto)); 
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null)
+            {
+                return Unauthorized();
+            }
+
+            var tokenDto = new TokenDto(refreshTokenDto.AccessToken, refreshToken, DateTime.Now);
+            var token = await _authService.RefreshToken(tokenDto);
+            var cookieOptions = new CookieOptions()
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = false,
+                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate)
+            };
+            Response.Cookies.Append("refreshToken", token.RefreshToken, cookieOptions);
+            return Ok(new { accessToken = token.AccessToken });
         }
     }
 }

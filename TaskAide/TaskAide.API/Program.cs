@@ -43,6 +43,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -59,6 +61,13 @@ app.Run();
 
 static void AddAuthentication(WebApplicationBuilder builder)
 {
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.WithOrigins("http://localhost:8100").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        });
+    });
     builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
