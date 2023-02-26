@@ -11,6 +11,7 @@
                 public const string Secret = "JWT:Secret";
                 public const string AccessTokenValidityInMinutes = "JWT:AccessTokenValidityInMinutes";
                 public const string RefreshTokenValidityInDays = "JWT:RefreshTokenValidityInDays";
+                public const string RefreshToken = "refreshToken";
             }
             public static class Authentication
             {

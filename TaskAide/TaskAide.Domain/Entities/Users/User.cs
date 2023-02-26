@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using TaskAide.Domain.Entities.Auth;
+using TaskAide.Domain.Entities.Bookings;
 
 namespace TaskAide.Domain.Entities.Users
 {
@@ -8,8 +9,8 @@ namespace TaskAide.Domain.Entities.Users
     {
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
-        //public string? RefreshToken { get; set; }
-        //public DateTime RefreshTokenExpiryTime { get; set; }
+        public bool IsProvider { get; set; } = default!;
+        public Provider Provider { get; set; } = default!;
         public ICollection<RefreshToken> RefreshTokens { get; set; } = default!;
     }
 }

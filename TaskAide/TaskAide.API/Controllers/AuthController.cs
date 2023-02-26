@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TaskAide.API.DTOs.Auth;
 using TaskAide.API.Services.Auth;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 namespace TaskAide.API.Controllers
 {
@@ -34,8 +38,9 @@ namespace TaskAide.API.Controllers
             {
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = false,
-                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate)
+                Secure = true,
+                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate),
+                SameSite = SameSiteMode.None
             };
             Response.Cookies.Append("refreshToken", token.RefreshToken, cookieOptions);
             return Ok(new { accessToken = token.AccessToken });
@@ -49,25 +54,50 @@ namespace TaskAide.API.Controllers
 
         [HttpPost]
         [Route("refreshToken")]
-        public async Task<IActionResult> RefreshToken(RefreshTokenDto refreshTokenDto)
+        [Authorize]
+        public async Task<IActionResult> RefreshToken()
         {
+            var accessToken = Request.Headers[HeaderNames.Authorization].FirstOrDefault();
             var refreshToken = Request.Cookies["refreshToken"];
-            if (refreshToken == null)
+            if (refreshToken == null || accessToken == null)
             {
                 return Unauthorized();
             }
+            accessToken = accessToken.Replace("Bearer ", "");
 
-            var tokenDto = new TokenDto(refreshTokenDto.AccessToken, refreshToken, DateTime.Now);
-            var token = await _authService.RefreshToken(tokenDto);
+            var tokenDto = new TokenDto(accessToken, refreshToken, DateTime.Now);
+            var token = await _authService.RefreshTokenAsync(tokenDto);
             var cookieOptions = new CookieOptions()
             {
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = false,
-                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate)
+                Secure = true,
+                Expires = new DateTimeOffset(token.RefreshTokenExpiryDate),
+                SameSite = SameSiteMode.None
             };
             Response.Cookies.Append("refreshToken", token.RefreshToken, cookieOptions);
             return Ok(new { accessToken = token.AccessToken });
+        }
+
+        [HttpPost]
+        [Route("revokeToken")]
+        [Authorize]
+        public async Task<IActionResult> RevokeToken()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var refreshToken = Request.Cookies["refreshToken"];
+
+
+            if (refreshToken == null || userId == null)
+            {
+                return Unauthorized();
+            }
+
+            await _authService.RevokeTokenAsync(userId, refreshToken);
+
+            Response.Cookies.Delete("refreshToken");
+
+            return NoContent();
         }
     }
 }

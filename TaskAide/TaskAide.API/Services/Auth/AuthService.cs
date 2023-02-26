@@ -65,7 +65,7 @@ namespace TaskAide.API.Services.Auth
         public async Task<TokenDto> LoginUserAsync(LoginUserDto loginUser)
         {
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
-
+        
             if (user == null)
             {
                 throw new NotFoundException("User with such email or password not found.");
@@ -81,12 +81,12 @@ namespace TaskAide.API.Services.Auth
             var expiredUserRefreshTokens = await _refreshTokenRepository.ListAsync(rt => rt.UserId == user.Id && rt.RefreshTokenExpiryTime < DateTime.Now);
             await _refreshTokenRepository.DeleteListAsync(expiredUserRefreshTokens);
 
-            return await GenerateToken(user);
+            return await GenerateTokenAsync(user);
         }
 
         
 
-        public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
+        public async Task<TokenDto> RefreshTokenAsync(TokenDto tokenDto)
         {
             string accessToken = tokenDto.AccessToken;
             string refreshToken = tokenDto.RefreshToken;
@@ -111,10 +111,20 @@ namespace TaskAide.API.Services.Auth
 
             await _refreshTokenRepository.DeleteAsync(dbRefreshToken);
 
-            return await GenerateToken(user);
+            return await GenerateTokenAsync(user);
         }
 
-        private async Task<TokenDto> GenerateToken(User user)
+        public async Task RevokeTokenAsync(string userId, string refreshToken)
+        {
+            var refreshTokenDb =  await _refreshTokenRepository.GetAsync(rt => rt.UserId == userId && rt.Token == refreshToken);
+
+            if (refreshTokenDb != null)
+            {
+                await _refreshTokenRepository.DeleteAsync(refreshTokenDb);
+            }
+        }
+
+        private async Task<TokenDto> GenerateTokenAsync(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
 

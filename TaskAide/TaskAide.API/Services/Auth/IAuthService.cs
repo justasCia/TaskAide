@@ -8,6 +8,8 @@ namespace TaskAide.API.Services.Auth
 
         public Task<TokenDto> LoginUserAsync(LoginUserDto loginUser);
 
-        public Task<TokenDto> RefreshToken(TokenDto tokenDto);
+        public Task<TokenDto> RefreshTokenAsync(TokenDto tokenDto);
+
+        public Task RevokeTokenAsync(string userId, string refreshToken);
     }
 }
