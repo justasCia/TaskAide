@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 using TaskAide.Domain.Entities.Auth;
-using TaskAide.Domain.Entities.Bookings;
 
 namespace TaskAide.Domain.Entities.Users
 {

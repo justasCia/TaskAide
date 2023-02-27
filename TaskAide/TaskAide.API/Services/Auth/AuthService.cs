@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TaskAide.API.Common;
 using TaskAide.API.DTOs.Auth;
@@ -65,7 +64,7 @@ namespace TaskAide.API.Services.Auth
         public async Task<TokenDto> LoginUserAsync(LoginUserDto loginUser)
         {
             var user = await _userManager.FindByEmailAsync(loginUser.Email);
-        
+
             if (user == null)
             {
                 throw new NotFoundException("User with such email or password not found.");
@@ -84,7 +83,7 @@ namespace TaskAide.API.Services.Auth
             return await GenerateTokenAsync(user);
         }
 
-        
+
 
         public async Task<TokenDto> RefreshTokenAsync(TokenDto tokenDto)
         {
@@ -116,7 +115,7 @@ namespace TaskAide.API.Services.Auth
 
         public async Task RevokeTokenAsync(string userId, string refreshToken)
         {
-            var refreshTokenDb =  await _refreshTokenRepository.GetAsync(rt => rt.UserId == userId && rt.Token == refreshToken);
+            var refreshTokenDb = await _refreshTokenRepository.GetAsync(rt => rt.UserId == userId && rt.Token == refreshToken);
 
             if (refreshTokenDb != null)
             {

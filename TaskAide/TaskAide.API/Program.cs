@@ -4,14 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using TaskAide.API.Common;
 using TaskAide.API.Handlers;
 using TaskAide.API.Services.Auth;
+using TaskAide.API.Services.Categories;
 using TaskAide.Domain.Entities.Users;
 using TaskAide.Domain.Repositories;
+using TaskAide.Domain.Services;
 using TaskAide.Infrastructure.Data;
 using TaskAide.Infrastructure.Repositories;
-using TaskAide.API.Common;
-using TaskAide.Domain.Services;
 using TaskAide.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,10 +59,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var db = app.Services.CreateScope().ServiceProvider.GetRequiredService<TaskAideContext>();
-db.Database.Migrate();
-var dbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<AuthDbSeeder>();
-await dbSeeder.SeedAsync();
+await SeedDatabaseAsync(app);
 
 app.UseMiddleware<ExceptionHandler>();
 
@@ -94,8 +92,7 @@ static void AddAuthentication(WebApplicationBuilder builder)
         });
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
     builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-    builder.Services.AddScoped<IAuthService, AuthService>();
-    builder.Services.AddScoped<AuthDbSeeder>();
+    builder.Services.AddScoped<IAuthService, AuthService>(); ;
 }
 
 static void AddDatabase(WebApplicationBuilder builder)
@@ -110,4 +107,19 @@ static void AddDatabase(WebApplicationBuilder builder)
         .AddEntityFrameworkStores<TaskAideContext>()
         .AddDefaultTokenProviders();
     builder.Services.AddScoped<IRefrehTokenRepository, RefreshTokenRepository>();
+    builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+    builder.Services.AddScoped<AuthDbSeeder>();
+    builder.Services.AddScoped<CategoryDbSeeder>();
+}
+
+static async Task SeedDatabaseAsync(WebApplication app)
+{
+    var db = app.Services.CreateScope().ServiceProvider.GetRequiredService<TaskAideContext>();
+    db.Database.Migrate();
+
+    var authDbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<AuthDbSeeder>();
+    await authDbSeeder.SeedAsync();
+
+    var categoryDbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<CategoryDbSeeder>();
+    await categoryDbSeeder.SeedAsync();
 }

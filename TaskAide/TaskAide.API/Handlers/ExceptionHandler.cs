@@ -34,7 +34,7 @@ namespace TaskAide.API.Handlers
             if (exceptionType == typeof(NotFoundException))
             {
                 status = HttpStatusCode.NotFound;
-            } 
+            }
             else if (exceptionType == typeof(BadRequestException))
             {
                 status = HttpStatusCode.BadRequest;

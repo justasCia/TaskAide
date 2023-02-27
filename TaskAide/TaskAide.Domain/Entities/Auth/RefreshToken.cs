@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using TaskAide.Domain.Entities.Users;
 
 namespace TaskAide.Domain.Entities.Auth

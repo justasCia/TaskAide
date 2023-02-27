@@ -1,6 +1,4 @@
-﻿using TaskAide.Domain.Entities.Users;
-
-namespace TaskAide.Domain.Entities.Bookings
+﻿namespace TaskAide.Domain.Entities.Bookings
 {
     public class Review : BaseEntity
     {

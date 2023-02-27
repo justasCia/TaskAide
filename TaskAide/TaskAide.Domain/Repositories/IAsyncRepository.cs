@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq.Expressions;
-using TaskAide.Domain.Entities;
+﻿using System.Linq.Expressions;
 
 namespace TaskAide.Domain.Repositories
 {

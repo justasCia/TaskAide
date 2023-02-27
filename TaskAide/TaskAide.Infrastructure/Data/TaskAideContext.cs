@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskAide.Domain.Entities.Auth;
 using TaskAide.Domain.Entities.Bookings;
@@ -14,6 +13,7 @@ namespace TaskAide.Infrastructure.Data
         public DbSet<Category> Categories { get; set; } = default!;
         public DbSet<Service> Services { get; set; } = default!;
         public DbSet<Provider> Providers { get; set; } = default!;
+        public DbSet<ProviderService> ProviderServices { get; set; } = default!;
         public DbSet<Booking> Bookings { get; set; } = default!;
         public DbSet<BookingService> BookingServices { get; set; } = default!;
         public DbSet<Review> Reviews { get; set; } = default!;

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using TaskAide.API.DTOs.Auth;
 using TaskAide.API.Services.Auth;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
