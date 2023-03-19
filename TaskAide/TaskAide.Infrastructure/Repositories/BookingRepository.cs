@@ -14,7 +14,7 @@ namespace TaskAide.Infrastructure.Repositories
 
         public async Task<IEnumerable<Booking>> GetBookingsWithAllInformation(Expression<Func<Booking, bool>>? expression = null)
         {
-            var bookings = _dbContext.Bookings.Include(b => b.User).Include(b => b.Provider).Include(b => b.BookingServices).ThenInclude(bs => bs.Service);
+            var bookings = _dbContext.Bookings.Include(b => b.User).Include(b => b.Provider).Include(b => b.Services).ThenInclude(bs => bs.Service);
 
             if (expression != null)
             {
@@ -22,6 +22,14 @@ namespace TaskAide.Infrastructure.Repositories
             }
 
             return await bookings.ToListAsync();
+        }
+
+        public async Task RemoveMaterialPricesAsync(Booking booking)
+        {
+            var materialPrices = await _dbContext.BookingMaterialPrices.Where(mp => mp.BookingId == booking.Id).ToListAsync();
+
+            _dbContext.RemoveRange(materialPrices);
+            _dbContext.SaveChanges();
         }
     }
 }

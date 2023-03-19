@@ -16,6 +16,7 @@ namespace TaskAide.Infrastructure.Data
         public DbSet<ProviderService> ProviderServices { get; set; } = default!;
         public DbSet<Booking> Bookings { get; set; } = default!;
         public DbSet<BookingService> BookingServices { get; set; } = default!;
+        public DbSet<BookingMaterialPrice> BookingMaterialPrices { get; set; } = default!;
         public DbSet<Review> Reviews { get; set; } = default!;
 
         public TaskAideContext(DbContextOptions<TaskAideContext> options) : base(options)

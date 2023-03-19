@@ -12,7 +12,8 @@ namespace TaskAide.Domain.Entities.Bookings
         public int ProviderId { get; set; } = default!;
         public Provider Provider { get; set; } = default!;
 
-        public ICollection<BookingService> BookingServices { get; set; } = default!;
+        public ICollection<BookingService> Services { get; set; } = default!;
+        public ICollection<BookingMaterialPrice> MaterialPrices { get; set; } = default!;
         public Point Address { get; set; } = default!;
         public DateTime StartDate { get; set; } = default!;
         public DateTime EndDate { get; set; } = default!;
@@ -21,5 +22,12 @@ namespace TaskAide.Domain.Entities.Bookings
 
         public int? ReviewId { get; set; }
         public Review? Review { get; set; }
+
+        public decimal CalculateTotalCost()
+        {
+            var totalMaterialPrice = MaterialPrices.Sum(mc => mc.Price);
+            var totalServicesPrice = Services.Sum(s => s.Price);
+            return totalMaterialPrice + totalServicesPrice;
+        }
     }
 }

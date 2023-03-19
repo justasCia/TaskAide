@@ -38,14 +38,22 @@ namespace TaskAide.API.DTOs
 
             CreateMap<BookingRequestDto, Booking>()
                 .ForMember(d => d.Address, opt => opt.MapFrom(b => new Point(b.Address.X, b.Address.Y) { SRID = 4326 }))
-                .ForMember(d => d.BookingServices, opt => opt.MapFrom(b => b.Services.Select(bs => new BookingService() { ServiceId = bs.Service.Id })));
+                .ForMember(d => d.Services, (IMemberConfigurationExpression<BookingRequestDto, Booking, object> opt) => opt.MapFrom(b => b.Services.Select(bs => new BookingService() { ServiceId = bs.Service.Id })));
             CreateMap<PostBookingDto, Booking>()
                 .ForMember(d => d.Address, opt => opt.MapFrom(b => new Point(b.Address.X, b.Address.Y) { SRID = 4326 }))
-                .ForMember(d => d.BookingServices, opt => opt.MapFrom(b => b.Services.Select(bs => new BookingService() { ServiceId = bs.Service.Id })));
+                .ForMember(d => d.Services, (IMemberConfigurationExpression<PostBookingDto, Booking, object> opt) => opt.MapFrom(b => b.Services.Select(bs => new BookingService() { ServiceId = bs.Service.Id })));
+            CreateMap<BookingService, ServiceDto>()
+                .ForMember(b => b.Name, opt => opt.MapFrom(b => b.Service.Name));
+            CreateMap<BookingService, BookingServiceDto>()
+                .ForMember(b => b.Service, opt => opt.MapFrom(b => b.Service));
             CreateMap<Booking, BookingDto>()
                 .ForMember(d => d.Client, opt => opt.MapFrom(b => b.User))
-                .ForMember(d => d.Services, opt => opt.MapFrom(b => b.BookingServices.Select(bs => bs.Service)))
+                .ForMember(d => d.Services, opt => opt.MapFrom(b => b.Services))
                 .ForMember(d => d.Status, opt => opt.MapFrom(b => b.Status.ToString()));
+            CreateMap<ServiceDto, Service>();
+            CreateMap<BookingMaterialPriceDto, BookingMaterialPrice>();
+            CreateMap<BookingServiceDto, BookingService>()
+                .ForMember(d => d.Service, opt => opt.MapFrom(b => b.Service));
         }
     }
 }

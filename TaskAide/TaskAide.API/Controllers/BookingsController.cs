@@ -6,6 +6,7 @@ using TaskAide.API.DTOs.Bookings;
 using TaskAide.API.DTOs.Users;
 using TaskAide.Domain.Entities.Auth;
 using TaskAide.Domain.Entities.Bookings;
+using TaskAide.Domain.Entities.Services;
 using TaskAide.Domain.Services;
 
 namespace TaskAide.API.Controllers
@@ -47,7 +48,7 @@ namespace TaskAide.API.Controllers
 
             var postedBooking = await _bookingsService.PostBookingAsync(bookingToPost);
 
-            return Ok(postedBooking);
+            return Ok(_mapper.Map<BookingDto>(postedBooking));
         }
 
         [HttpGet]
@@ -87,9 +88,45 @@ namespace TaskAide.API.Controllers
                 return Forbid();
             }
 
-            await _bookingsService.UpdateBookingStatus(id, status);
+            booking = await _bookingsService.UpdateBookingStatusAsync(booking, status);
 
-            return NoContent();
+            return Ok(_mapper.Map<BookingDto>(booking));
+        }
+
+        [HttpPut("{id}/services")]
+        public async Task<IActionResult> UpdateBookingServices(int id, [FromBody] IEnumerable<BookingServiceDto> services)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, booking, PolicyNames.BookingOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            var boookingServices = services.Select(s => _mapper.Map<BookingService>(s));
+
+            booking = await _bookingsService.UpdateBookingServicesAsync(booking, boookingServices);
+
+            return Ok(_mapper.Map<BookingDto>(booking));
+        }
+
+        [HttpPost("{id}/materialPrices")]
+        public async Task<IActionResult> PostBookingMaterialPrices(int id, [FromBody] IEnumerable<BookingMaterialPriceDto> materialPrices)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, booking, PolicyNames.BookingOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            booking = await _bookingsService.PostBookingMaterialPricesAsync(booking, materialPrices.Select(mp => _mapper.Map<BookingMaterialPrice>(mp)));
+
+            return Ok(_mapper.Map<BookingDto>(booking));
         }
     }
 }

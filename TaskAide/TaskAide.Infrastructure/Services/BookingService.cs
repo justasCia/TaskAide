@@ -12,13 +12,15 @@ namespace TaskAide.Infrastructure.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IProviderRepository _providerRepository;
+        private readonly IBookingServiceRepository _bookingServiceRepository;
         private readonly UserManager<User> _userManager;
 
-        public BookingService(IBookingRepository bookingRepository, IServiceRepository serviceRepository, IProviderRepository providerRepository, UserManager<User> userManager)
+        public BookingService(IBookingRepository bookingRepository, IServiceRepository serviceRepository, IProviderRepository providerRepository, IBookingServiceRepository bookingServiceRepository, UserManager<User> userManager)
         {
             _bookingRepository = bookingRepository;
             _serviceRepository = serviceRepository;
             _providerRepository = providerRepository;
+            _bookingServiceRepository = bookingServiceRepository;
             _userManager = userManager;
         }
 
@@ -75,7 +77,7 @@ namespace TaskAide.Infrastructure.Services
 
         public async Task<Booking> PostBookingAsync(Booking booking)
         {
-            foreach (var service in booking.BookingServices)
+            foreach (var service in booking.Services)
             {
                 if (await _serviceRepository.GetAsync(s => s.Id == service.ServiceId) == null)
                 {
@@ -96,21 +98,41 @@ namespace TaskAide.Infrastructure.Services
             return await _bookingRepository.AddAsync(booking);
         }
 
-        public async Task<Booking> UpdateBookingStatus(int bookingId, string status)
+        public async Task<Booking> UpdateBookingStatusAsync(Booking booking, string status)
         {
             if (!Enum.TryParse(status, out BookingStatus bookingStatus))
             {
                 throw new BadRequestException("Invalid booking status");
             }
 
-            var booking = await _bookingRepository.GetAsync(b => b.Id == bookingId);
+            booking.Status = bookingStatus;
 
-            if (booking == null)
+            return await _bookingRepository.UpdateAsync(booking);
+        }
+
+        public async Task<Booking> UpdateBookingServicesAsync(Booking booking, IEnumerable<Domain.Entities.Services.BookingService> services)
+        {
+            foreach (var service in services)
             {
-                throw new NotFoundException("Booking not found");
+                foreach (var bookingService in booking.Services)
+                {
+                    if (bookingService.Id == service.Id)
+                    {
+                        bookingService.Price = service.Price;
+                        bookingService.HoursOfWork = service.HoursOfWork;
+                        break;
+                    }
+                }
             }
 
-            booking.Status = bookingStatus;
+            return await _bookingRepository.UpdateAsync(booking);
+        }
+
+        public async Task<Booking> PostBookingMaterialPricesAsync(Booking booking, IEnumerable<BookingMaterialPrice> materialPrices)
+        {
+            await _bookingRepository.RemoveMaterialPricesAsync(booking);
+
+            booking.MaterialPrices = materialPrices.ToList();
 
             return await _bookingRepository.UpdateAsync(booking);
         }

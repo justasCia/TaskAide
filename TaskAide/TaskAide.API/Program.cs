@@ -135,6 +135,7 @@ static void AddDatabase(WebApplicationBuilder builder)
     builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
     builder.Services.AddScoped<IProviderServiceRepository, ProviderServiceRepository>();
     builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+    builder.Services.AddScoped<IBookingServiceRepository, BookingServiceRepository>();
 
     builder.Services.AddScoped<AuthDbSeeder>();
     builder.Services.AddScoped<CategoryDbSeeder>();

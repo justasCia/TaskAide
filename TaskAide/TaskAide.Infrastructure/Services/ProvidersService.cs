@@ -81,7 +81,7 @@ namespace TaskAide.Infrastructure.Services
 
         public async Task<IEnumerable<Provider>> GetProvidersForBookingAsync(Booking booking)
         {
-            var requiredServices = booking.BookingServices.Select(bs => bs.ServiceId);
+            var requiredServices = booking.Services.Select(bs => bs.ServiceId);
 
             var providers = (await _providerRepository.GetProvidersWithTheirServices())
                 .Where(provider =>
