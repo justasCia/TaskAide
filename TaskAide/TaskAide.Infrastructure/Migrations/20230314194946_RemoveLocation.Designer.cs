@@ -3,8 +3,8 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.Geometries;
 using TaskAide.Infrastructure.Data;
 
 #nullable disable
@@ -12,9 +12,11 @@ using TaskAide.Infrastructure.Data;
 namespace TaskAide.Infrastructure.Migrations
 {
     [DbContext(typeof(TaskAideContext))]
-    partial class TaskAideContextModelSnapshot : ModelSnapshot
+    [Migration("20230314194946_RemoveLocation")]
+    partial class RemoveLocation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,9 +196,12 @@ namespace TaskAide.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Point>("Address")
+                    b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("geography");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BookingStatus")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -209,9 +214,6 @@ namespace TaskAide.Infrastructure.Migrations
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -301,6 +303,9 @@ namespace TaskAide.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("PricePerHour")
+                        .HasColumnType("decimal(6,2)");
+
                     b.Property<int>("ProviderId")
                         .HasColumnType("int");
 
@@ -327,6 +332,9 @@ namespace TaskAide.Infrastructure.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("DefaultPricePerHour")
+                        .HasColumnType("decimal(6,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -346,16 +354,12 @@ namespace TaskAide.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BasePricePerHour")
+                    b.Property<decimal>("DefaultPricePerHour")
                         .HasColumnType("decimal(6,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Point>("Location")
-                        .IsRequired()
-                        .HasColumnType("geography");
 
                     b.Property<string>("UserId")
                         .IsRequired()

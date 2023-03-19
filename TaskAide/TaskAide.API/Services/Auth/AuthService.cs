@@ -27,7 +27,7 @@ namespace TaskAide.API.Services.Auth
             _refreshTokenValidityInDays = int.Parse(configuration[Constants.Configuration.Jwt.RefreshTokenValidityInDays] ?? "1");
         }
 
-        public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser)
+        public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser, bool registerAsProvider)
         {
             //if (!Roles.All.Contains(registerUser.Role) || registerUser.Role == Roles.Admin)
             //{
@@ -56,7 +56,14 @@ namespace TaskAide.API.Services.Auth
                 throw new BadRequestException("Could not create a user.");
             }
 
-            await _userManager.AddToRoleAsync(newUser, Roles.Client);
+            if (registerAsProvider)
+            {
+                await _userManager.AddToRoleAsync(newUser, Roles.Provider);
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(newUser, Roles.Client);
+            }
 
             return new UserDto() { Email = newUser.Email };
         }

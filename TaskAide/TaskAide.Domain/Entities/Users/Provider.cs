@@ -1,4 +1,6 @@
-﻿using TaskAide.Domain.Entities.Bookings;
+﻿using NetTopologySuite.Geometries;
+using System.ComponentModel.DataAnnotations.Schema;
+using TaskAide.Domain.Entities.Bookings;
 using TaskAide.Domain.Entities.Services;
 
 namespace TaskAide.Domain.Entities.Users
@@ -9,9 +11,14 @@ namespace TaskAide.Domain.Entities.Users
         public User User { get; set; } = default!;
 
         public string Description { get; set; } = default!;
+        public Point Location { get; set; } = default!;
 
-       
+
+        public int WorkingRange { get; set; }
+        [Column(TypeName = "decimal(6,2)")]
+        public decimal BasePricePerHour { get; set; }
+
         public ICollection<Booking> Bookings { get; set; } = default!;
-        public ICollection<ProviderService> ProviderServices { get; set; } = default!;
+        public ICollection<ProviderService> ProviderServices { get; set; } = new List<ProviderService>();
     }
 }

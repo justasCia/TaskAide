@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using TaskAide.Domain.Entities.Users;
+﻿using TaskAide.Domain.Entities.Users;
 
 namespace TaskAide.Domain.Entities.Services
 {
@@ -10,8 +9,5 @@ namespace TaskAide.Domain.Entities.Services
 
         public int ServiceId { get; set; }
         public Service Service { get; set; } = default!;
-
-        [Column(TypeName = "decimal(6,2)")]
-        public decimal? PricePerHour { get; set; }
     }
 }

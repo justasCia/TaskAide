@@ -41,8 +41,13 @@ namespace TaskAide.Infrastructure.Repositories
             return await _dbContext.Set<T>().FirstOrDefaultAsync(expression);
         }
 
-        public async Task<List<T>> ListAsync(Expression<Func<T, bool>> expression)
+        public async Task<List<T>> ListAsync(Expression<Func<T, bool>>? expression = null)
         {
+            if (expression != null)
+            {
+                return await _dbContext.Set<T>().Where(expression).ToListAsync();
+            }
+
             return await _dbContext.Set<T>().ToListAsync();
         }
 

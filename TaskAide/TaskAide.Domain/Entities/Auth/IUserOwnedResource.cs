@@ -1,7 +1,7 @@
 ﻿namespace TaskAide.Domain.Entities.Auth
 {
-    public class IUserOwnedResource
+    public interface IUserOwnedResource
     {
-        public string UserId { get; set; } = default!;
+        public string UserId { get; set; }
     }
 }

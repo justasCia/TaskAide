@@ -4,7 +4,7 @@ namespace TaskAide.API.Services.Auth
 {
     public interface IAuthService
     {
-        public Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser);
+        public Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser, bool registerAsProvider);
 
         public Task<TokenDto> LoginUserAsync(LoginUserDto loginUser);
 
