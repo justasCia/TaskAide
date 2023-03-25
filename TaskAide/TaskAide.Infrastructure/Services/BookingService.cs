@@ -112,18 +112,22 @@ namespace TaskAide.Infrastructure.Services
 
         public async Task<Booking> UpdateBookingServicesAsync(Booking booking, IEnumerable<Domain.Entities.Services.BookingService> services)
         {
-            foreach (var service in services)
+            var serviceList = services.ToList();
+            foreach (var service in serviceList)
             {
-                foreach (var bookingService in booking.Services)
+                var dbService = await _serviceRepository.GetAsync(s => s.Id == service.ServiceId);
+
+                if (dbService == null)
                 {
-                    if (bookingService.Id == service.Id)
-                    {
-                        bookingService.Price = service.Price;
-                        bookingService.HoursOfWork = service.HoursOfWork;
-                        break;
-                    }
+                    throw new NotFoundException($"Service {service.Id} not found");
                 }
+
+                service.Service = dbService;
             }
+
+            await _bookingServiceRepository.DeleteListAsync(booking.Services.ToList());
+
+            booking.Services = serviceList;
 
             return await _bookingRepository.UpdateAsync(booking);
         }

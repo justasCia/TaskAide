@@ -11,6 +11,7 @@ namespace TaskAide.API.DTOs.Bookings
         public UserDto Client { get; set; } = default!;
         public ProviderDto? Provider { get; set; }
         public IEnumerable<BookingServiceDto> Services { get; set; } = Enumerable.Empty<BookingServiceDto>();
+        public IEnumerable<BookingMaterialPriceDto> MaterialPrices { get; set; } = Enumerable.Empty<BookingMaterialPriceDto>();
         public PointDto Address { get; set; } = default!;
         public DateTime StartDate { get; set; } = default!;
         public DateTime EndDate { get; set; } = default!;

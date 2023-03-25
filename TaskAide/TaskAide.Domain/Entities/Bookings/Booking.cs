@@ -15,6 +15,7 @@ namespace TaskAide.Domain.Entities.Bookings
         public ICollection<BookingService> Services { get; set; } = default!;
         public ICollection<BookingMaterialPrice> MaterialPrices { get; set; } = default!;
         public Point Address { get; set; } = default!;
+        public string PlaceId { get; set; } = default!;
         public DateTime StartDate { get; set; } = default!;
         public DateTime EndDate { get; set; } = default!;
         public string AdditionalInformation { get; set; } = default!;

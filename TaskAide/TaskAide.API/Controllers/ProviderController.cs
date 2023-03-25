@@ -25,7 +25,7 @@ namespace TaskAide.API.Controllers
         [HttpGet]
         [Route("information")]
         [Authorize]
-        public async Task<IActionResult> GetProviderInfo()
+        public async Task<IActionResult> GetProviderInformation()
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
@@ -34,14 +34,14 @@ namespace TaskAide.API.Controllers
             return provider != null ? Ok(_mapper.Map<ProviderDto>(provider)) : NotFound();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("information")]
         [Authorize]
-        public async Task<IActionResult> PostProviderInfo(ProviderInformationDto providerDto)
+        public async Task<IActionResult> UpsertProviderInformation(ProviderInformationDto providerDto)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            var provider = await _providersService.PostProviderAsync(userId!, _mapper.Map<Provider>(providerDto));
+            var provider = await _providersService.UpsertProviderAsync(userId!, _mapper.Map<Provider>(providerDto));
             var services = await _providersService.PostProviderServicesAsync(userId!, providerDto.ProviderServices.Select(ps => ps.Id));
 
             var providerResponse = _mapper.Map<ProviderWithInformationDto>(provider);

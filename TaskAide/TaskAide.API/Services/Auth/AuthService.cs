@@ -47,7 +47,8 @@ namespace TaskAide.API.Services.Auth
                 LastName = registerUser.LastName,
                 PhoneNumber = registerUser.PhoneNumber,
                 Email = registerUser.Email,
-                UserName = registerUser.Email
+                UserName = registerUser.Email,
+                IsProvider = registerAsProvider
             };
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerUser.Password);

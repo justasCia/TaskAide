@@ -28,7 +28,7 @@ namespace TaskAide.Infrastructure.Services
             return await _providerRepository.GetProviderWithUserInfoAsync(userId);
         }
 
-        public async Task<Provider?> PostProviderAsync(string userId, Provider provider)
+        public async Task<Provider?> UpsertProviderAsync(string userId, Provider provider)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -39,14 +39,19 @@ namespace TaskAide.Infrastructure.Services
 
             var exsistingProvider = await _providerRepository.GetAsync(p => p.UserId == userId);
 
-            if (exsistingProvider != null)
+            if (exsistingProvider == null)
             {
-                await _providerRepository.DeleteAsync(exsistingProvider);
+                provider.User = user;
+                provider = await _providerRepository.AddAsync(provider);
+            } else
+            {
+                exsistingProvider.Description = provider.Description;
+                exsistingProvider.Location = provider.Location;
+                exsistingProvider.PlaceId = provider.PlaceId;
+                exsistingProvider.BasePricePerHour = provider.BasePricePerHour;
+                exsistingProvider.WorkingRange = provider.WorkingRange;
+                provider = await _providerRepository.UpdateAsync(exsistingProvider);
             }
-
-            provider.User = user;
-
-            provider = await _providerRepository.AddAsync(provider);
 
             return provider;
         }

@@ -112,7 +112,7 @@ namespace TaskAide.API.Controllers
             return Ok(_mapper.Map<BookingDto>(booking));
         }
 
-        [HttpPost("{id}/materialPrices")]
+        [HttpPut("{id}/materialPrices")]
         public async Task<IActionResult> PostBookingMaterialPrices(int id, [FromBody] IEnumerable<BookingMaterialPriceDto> materialPrices)
         {
             var booking = await _bookingsService.GetBookingAsync(id);
