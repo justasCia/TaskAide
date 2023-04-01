@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -39,9 +40,13 @@ builder.Services.AddScoped<IEncryptionService, EncryptionService>(provider =>
     var key = builder.Configuration[Constants.Configuration.Encryption.Key];
     return new EncryptionService(Encoding.UTF8.GetBytes(key));
 });
-builder.Services.AddScoped<IProvidersService, ProvidersService>();
+builder.Services.AddScoped<IProviderService, ProviderService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 AddMapper(builder);
+
+StripeConfiguration.ApiKey = "sk_test_51Ms0GCBZbZZKguSrewCMXDd0MuFFqjbJiyIQFbkKVH8O1UX0KPRETNtrpFR9fLxKhnWC3v8dToS48DFSoM6bx4Mo00DjSyNuA6";
 
 AddAuthentication(builder);
 
@@ -118,7 +123,8 @@ static void AddDatabase(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<TaskAideContext>(options =>
     {
-        var connectionString = "Data Source=localhost;Initial Catalog=TaskAide;User ID=sa;Password=TaskA1deComplexP@ssw0rd!;encrypt=false";
+        var connectionString = builder.Configuration[Constants.Configuration.DatabaseConnectionString];
+        //var connectionString = "Data Source=localhost;Initial Catalog=TaskAide;User ID=sa;Password=TaskA1deComplexP@ssw0rd!;encrypt=false";
         options.UseSqlServer(connectionString, options =>
         {
             options.UseNetTopologySuite();

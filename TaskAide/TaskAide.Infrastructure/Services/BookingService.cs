@@ -61,6 +61,10 @@ namespace TaskAide.Infrastructure.Services
             }
 
             var provider = await _providerRepository.GetAsync(p => p.UserId == user.Id);
+            if (provider == null || string.IsNullOrEmpty(provider.BankAccount))
+            {
+                throw new BadRequestException("User cannot accept bookings until provider information filled");
+            }
 
             if (status != null)
             {
@@ -100,10 +104,7 @@ namespace TaskAide.Infrastructure.Services
 
         public async Task<Booking> UpdateBookingStatusAsync(Booking booking, string status)
         {
-            if (!Enum.TryParse(status, out BookingStatus bookingStatus))
-            {
-                throw new BadRequestException("Invalid booking status");
-            }
+            BookingStatus bookingStatus = GetBookingStatus(booking, status);
 
             booking.Status = bookingStatus;
 
@@ -139,6 +140,49 @@ namespace TaskAide.Infrastructure.Services
             booking.MaterialPrices = materialPrices.ToList();
 
             return await _bookingRepository.UpdateAsync(booking);
+        }
+
+        private static BookingStatus GetBookingStatus(Booking booking, string status)
+        {
+            if (!Enum.TryParse(status, out BookingStatus bookingStatus))
+            {
+                ThrowBookingStatusException();
+            }
+            if (bookingStatus == BookingStatus.Pending && booking.Status != BookingStatus.Pending)
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.Rejected && (booking.Status != BookingStatus.Pending || booking.Status != BookingStatus.InNegotiation))
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.Cancelled && (booking.Status == BookingStatus.Completed || bookingStatus == BookingStatus.CancelledWithPartialPayment))
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.CancelledWithPartialPayment && booking.Status != BookingStatus.Confirmed)
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.InNegotiation && (int)booking.Status > (int)bookingStatus)
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.Confirmed && (int)booking.Status > (int)bookingStatus)
+            {
+                ThrowBookingStatusException();
+            }
+            else if (bookingStatus == BookingStatus.Completed && (int)booking.Status > (int)bookingStatus)
+            {
+                ThrowBookingStatusException();
+            }
+
+            return bookingStatus;
+        }
+
+        private static void ThrowBookingStatusException()
+        {
+            throw new BadRequestException("Invalid booking status");
         }
     }
 }

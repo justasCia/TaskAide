@@ -14,6 +14,8 @@ namespace TaskAide.Domain.Entities.Users
         public Point Location { get; set; } = default!;
         public string PlaceId { get; set; } = default!;
 
+        public string? AccountId { get; set; }
+        public string? BankAccount { get; set; }
 
         public int WorkingRange { get; set; }
         [Column(TypeName = "decimal(6,2)")]

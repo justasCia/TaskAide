@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using TaskAide.Infrastructure.Data;
@@ -12,9 +13,11 @@ using TaskAide.Infrastructure.Data;
 namespace TaskAide.Infrastructure.Migrations
 {
     [DbContext(typeof(TaskAideContext))]
-    partial class TaskAideContextModelSnapshot : ModelSnapshot
+    [Migration("20230401125641_ProviderBankAccountNumber")]
+    partial class ProviderBankAccountNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,14 +201,8 @@ namespace TaskAide.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("geography");
 
-                    b.Property<string>("CheckoutId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Paid")
-                        .HasColumnType("bit");
 
                     b.Property<string>("PlaceId")
                         .IsRequired()

@@ -29,11 +29,6 @@ namespace TaskAide.API.Services.Auth
 
         public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser, bool registerAsProvider)
         {
-            //if (!Roles.All.Contains(registerUser.Role) || registerUser.Role == Roles.Admin)
-            //{
-            //    throw new BadRequestException($"Could not create user with {registerUser.Role} role.");
-            //}
-
             var user = await _userManager.FindByEmailAsync(registerUser.Email);
 
             if (user != null)

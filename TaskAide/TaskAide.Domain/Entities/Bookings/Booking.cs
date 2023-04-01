@@ -20,6 +20,8 @@ namespace TaskAide.Domain.Entities.Bookings
         public DateTime EndDate { get; set; } = default!;
         public string AdditionalInformation { get; set; } = default!;
         public BookingStatus Status { get; set; }
+        public bool Paid { get; set; }
+        public string? CheckoutId { get; set; }
 
         public int? ReviewId { get; set; }
         public Review? Review { get; set; }

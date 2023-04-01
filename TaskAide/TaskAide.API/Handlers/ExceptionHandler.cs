@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Stripe;
 using System.Net;
 using TaskAide.Domain.Exceptions;
 
@@ -36,6 +37,10 @@ namespace TaskAide.API.Handlers
                 status = HttpStatusCode.NotFound;
             }
             else if (exceptionType == typeof(BadRequestException))
+            {
+                status = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(StripeException))
             {
                 status = HttpStatusCode.BadRequest;
             }

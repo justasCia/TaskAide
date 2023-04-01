@@ -8,14 +8,14 @@ using TaskAide.Domain.Services;
 
 namespace TaskAide.Infrastructure.Services
 {
-    public class ProvidersService : IProvidersService
+    public class ProviderService : IProviderService
     {
         private readonly UserManager<User> _userManager;
         private readonly IProviderRepository _providerRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IProviderServiceRepository _providerServiceRepository;
 
-        public ProvidersService(UserManager<User> userManager, IProviderRepository providerRepository, IServiceRepository serviceRepository, IProviderServiceRepository providerServiceRepository)
+        public ProviderService(UserManager<User> userManager, IProviderRepository providerRepository, IServiceRepository serviceRepository, IProviderServiceRepository providerServiceRepository)
         {
             _userManager = userManager;
             _providerRepository = providerRepository;
@@ -43,7 +43,8 @@ namespace TaskAide.Infrastructure.Services
             {
                 provider.User = user;
                 provider = await _providerRepository.AddAsync(provider);
-            } else
+            }
+            else
             {
                 exsistingProvider.Description = provider.Description;
                 exsistingProvider.Location = provider.Location;
@@ -76,7 +77,7 @@ namespace TaskAide.Infrastructure.Services
 
                 if (service != null)
                 {
-                    var providerService = await _providerServiceRepository.AddAsync(new ProviderService() { Provider = provider, Service = service });
+                    var providerService = await _providerServiceRepository.AddAsync(new Domain.Entities.Services.ProviderService() { Provider = provider, Service = service });
                     servicesAdded.Add(service);
                 }
             }
@@ -90,6 +91,7 @@ namespace TaskAide.Infrastructure.Services
 
             var providers = (await _providerRepository.GetProvidersWithTheirServices())
                 .Where(provider =>
+                    !string.IsNullOrEmpty(provider.AccountId) &&
                     CalculateDistance(provider.Location.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange &&
                     ProvidesRequiredServices(requiredServices, provider)
                 );

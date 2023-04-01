@@ -4,7 +4,7 @@ using TaskAide.Domain.Entities.Users;
 
 namespace TaskAide.Domain.Services
 {
-    public interface IProvidersService
+    public interface IProviderService
     {
         public Task<Provider?> GetProviderAsync(string userId);
         public Task<Provider?> UpsertProviderAsync(string userId, Provider provider);

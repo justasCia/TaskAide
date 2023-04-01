@@ -25,6 +25,9 @@
             {
                 public const string Key = "Encryption:Key";
             }
+
+            public const string DatabaseConnectionString = nameof(DatabaseConnectionString);
+            public const string TaskAideAppUrl = nameof(TaskAideAppUrl);
         }
     }
 }

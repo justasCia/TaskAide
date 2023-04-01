@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
+using TaskAide.API.Common;
 using TaskAide.API.DTOs.Bookings;
 using TaskAide.API.DTOs.Users;
 using TaskAide.Domain.Entities.Auth;
@@ -17,16 +18,22 @@ namespace TaskAide.API.Controllers
     public class BookingsController : ControllerBase
     {
         private readonly IBookingService _bookingsService;
-        private readonly IProvidersService _providersService;
-        private readonly IMapper _mapper;
+        private readonly IProviderService _providersService;
+        private readonly IPaymentService _paymentService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IMapper _mapper;
 
-        public BookingsController(IBookingService bookingsService, IProvidersService providersService, IMapper mapper, IAuthorizationService authorizationService)
+        private readonly string _taskAideAppUrl;
+
+        public BookingsController(IBookingService bookingsService, IProviderService providersService, IPaymentService paymentService, IAuthorizationService authorizationService, IMapper mapper, IConfiguration configuration)
         {
             _bookingsService = bookingsService;
             _providersService = providersService;
-            _mapper = mapper;
+            _paymentService = paymentService;
             _authorizationService = authorizationService;
+            _mapper = mapper;
+
+            _taskAideAppUrl = configuration[Constants.Configuration.TaskAideAppUrl]!;
         }
 
         [HttpPost]
@@ -127,6 +134,34 @@ namespace TaskAide.API.Controllers
             booking = await _bookingsService.PostBookingMaterialPricesAsync(booking, materialPrices.Select(mp => _mapper.Map<BookingMaterialPrice>(mp)));
 
             return Ok(_mapper.Map<BookingDto>(booking));
+        }
+
+        [HttpGet("{id}/payment")]
+        public async Task<IActionResult> StartBookingPayment(int id)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, booking, PolicyNames.BookingOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+            var checkoutUrl = await _paymentService.CreatePaymentForBookingAsync(booking, $"{Request.Scheme}://{Request.Host}/api/bookings/{booking.Id}/payment/status", $"{_taskAideAppUrl}/orders/{booking.Id}");
+
+            return Ok(new { checkoutUrl });
+        }
+
+        [HttpGet("{id}/payment/status")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ProcessBokingPayment(int id)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            booking = await _paymentService.ProcessBookingPaymentAsync(booking);
+
+            Response.Headers.Add("Location", $"{_taskAideAppUrl}/orders/{booking.Id}");
+            return new StatusCodeResult(303);
         }
     }
 }
