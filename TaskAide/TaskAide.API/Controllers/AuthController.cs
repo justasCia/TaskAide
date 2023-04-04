@@ -24,15 +24,25 @@ namespace TaskAide.API.Controllers
         [Route("register")]
         public async Task<IActionResult> Register(RegisterUserDto registerUserDto)
         {
-            return Ok(await _authService.RegisterUserAsync(registerUserDto, registerAsProvider: false));
+            var registeredUser = await _authService.RegisterUserAsync(registerUserDto,RegisterType.User);
+            return Ok(new UserDto() { Email = registeredUser.Email });
         }
 
         [HttpPost]
         [Route("registerProvider")]
         public async Task<IActionResult> RegisterProvider(RegisterUserDto registerUserDto)
         {
-            return Ok(await _authService.RegisterUserAsync(registerUserDto, registerAsProvider: true));
+            var regosteredProvider = await _authService.RegisterUserAsync(registerUserDto, RegisterType.Provider);
+            return Ok(new UserDto() { Email = regosteredProvider.Email });
         }
+
+        [HttpPost]
+        [Route("registerCompany")]
+        public async Task<IActionResult> RegisterCompany(RegisterCompanyDto registerCompanyDto)
+        {
+            return Ok(await _authService.RegisterCompanyAsync(registerCompanyDto));
+        }
+
 
         [HttpPost]
         [Route("signin")]

@@ -11,6 +11,9 @@ namespace TaskAide.Domain.Entities.Bookings
         public User User { get; set; } = default!;
         public int ProviderId { get; set; } = default!;
         public Provider Provider { get; set; } = default!;
+        public int? WorkerId { get; set; }
+        public Provider? Worker { get; set; }
+
 
         public ICollection<BookingService> Services { get; set; } = default!;
         public ICollection<BookingMaterialPrice> MaterialPrices { get; set; } = default!;

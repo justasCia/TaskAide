@@ -14,7 +14,12 @@ namespace TaskAide.Infrastructure.Repositories
 
         public async Task<IEnumerable<Booking>> GetBookingsWithAllInformation(Expression<Func<Booking, bool>>? expression = null)
         {
-            var bookings = _dbContext.Bookings.Include(b => b.User).Include(b => b.Provider).ThenInclude(p => p.User).Include(b => b.Services).ThenInclude(bs => bs.Service).Include(b => b.MaterialPrices);
+            var bookings = _dbContext.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Provider).ThenInclude(p => p.User)
+                .Include(b => b.Services).ThenInclude(bs => bs.Service)
+                .Include(b => b.Worker).ThenInclude(w => w.User)
+                .Include(b => b.MaterialPrices);
 
             if (expression != null)
             {

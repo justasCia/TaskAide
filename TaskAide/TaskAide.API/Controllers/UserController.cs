@@ -28,7 +28,7 @@ namespace TaskAide.API.Controllers
 
             var user = await _userService.GetUserAsync(userId!);
 
-            return Ok(_mapper.Map<UserDto>(user));
+            return Ok(_mapper.Map<UserDto >(user));
 ;        }
     }
 }

@@ -27,7 +27,7 @@ namespace TaskAide.API.Services.Auth
             _refreshTokenValidityInDays = int.Parse(configuration[Constants.Configuration.Jwt.RefreshTokenValidityInDays] ?? "1");
         }
 
-        public async Task<UserDto> RegisterUserAsync(RegisterUserDto registerUser, bool registerAsProvider)
+        public async Task<User> RegisterUserAsync(RegisterUserDto registerUser, RegisterType registerType)
         {
             var user = await _userManager.FindByEmailAsync(registerUser.Email);
 
@@ -43,7 +43,7 @@ namespace TaskAide.API.Services.Auth
                 PhoneNumber = registerUser.PhoneNumber,
                 Email = registerUser.Email,
                 UserName = registerUser.Email,
-                IsProvider = registerAsProvider
+                IsProvider = registerType == RegisterType.Provider || registerType == RegisterType.CompanyWorker 
             };
 
             var createUserResult = await _userManager.CreateAsync(newUser, registerUser.Password);
@@ -52,14 +52,48 @@ namespace TaskAide.API.Services.Auth
                 throw new BadRequestException("Could not create a user.");
             }
 
-            if (registerAsProvider)
+            switch (registerType)
             {
-                await _userManager.AddToRoleAsync(newUser, Roles.Provider);
+                case RegisterType.User:
+                    await _userManager.AddToRoleAsync(newUser, Roles.Client);
+                    break;
+                case RegisterType.Provider:
+                    await _userManager.AddToRoleAsync(newUser, Roles.Provider);
+                    break;
+                case RegisterType.CompanyWorker:
+                    await _userManager.AddToRoleAsync(newUser, Roles.CompanyWorker);
+                    break;
             }
-            else
+
+            return newUser;
+        }
+
+        public async Task<UserDto> RegisterCompanyAsync(RegisterCompanyDto registerCompany)
+        {
+            var user = await _userManager.FindByEmailAsync(registerCompany.Email);
+
+            if (user != null)
             {
-                await _userManager.AddToRoleAsync(newUser, Roles.Client);
+                throw new BadRequestException("Email already taken.");
             }
+
+            var newUser = new User
+            {
+                PhoneNumber = registerCompany.PhoneNumber,
+                Email = registerCompany.Email,
+                UserName = registerCompany.Email,
+                CompanyName = registerCompany.CompanyName,
+                IsProvider = true
+            };
+
+            var createUserResult = await _userManager.CreateAsync(newUser, registerCompany.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                throw new BadRequestException("Could not create a user.");
+            }
+
+            await _userManager.AddToRoleAsync(newUser, Roles.Company);
 
             return new UserDto() { Email = newUser.Email };
         }
@@ -141,6 +175,11 @@ namespace TaskAide.API.Services.Auth
             });
 
             return new TokenDto(accessToken, refreshToken, DateTime.Now.AddDays(_refreshTokenValidityInDays));
+        }
+
+        public async Task RemoveUserAsync(string userId)
+        {
+            await _userManager.DeleteAsync(await _userManager.FindByIdAsync(userId));
         }
     }
 }

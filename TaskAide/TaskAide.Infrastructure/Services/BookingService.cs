@@ -61,6 +61,22 @@ namespace TaskAide.Infrastructure.Services
             }
 
             var provider = await _providerRepository.GetAsync(p => p.UserId == user.Id);
+
+            if (provider != null && provider.CompanyId != null)
+            {
+                if (status != null)
+                {
+                    if (!Enum.TryParse(status, out BookingStatus bookingStatus))
+                    {
+                        throw new BadRequestException("Invalid booking status");
+                    }
+
+                    return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                }
+
+                return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id)).OrderByDescending(b => b.Id);
+            }
+
             if (provider == null || string.IsNullOrEmpty(provider.BankAccount))
             {
                 throw new BadRequestException("User cannot accept bookings until provider information filled");
@@ -138,6 +154,20 @@ namespace TaskAide.Infrastructure.Services
             await _bookingRepository.RemoveMaterialPricesAsync(booking);
 
             booking.MaterialPrices = materialPrices.ToList();
+
+            return await _bookingRepository.UpdateAsync(booking);
+        }
+
+        public async Task<Booking> AssignBookingWorkerAsync(Booking booking, int workerId)
+        {
+            var worker = await _providerRepository.GetAsync(p => p.Id == workerId);
+
+            if (worker == null)
+            {
+                throw new NotFoundException("Worker not found");
+            }
+
+            booking.Worker = worker;
 
             return await _bookingRepository.UpdateAsync(booking);
         }

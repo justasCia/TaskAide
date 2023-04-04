@@ -136,6 +136,23 @@ namespace TaskAide.API.Controllers
             return Ok(_mapper.Map<BookingDto>(booking));
         }
 
+        [HttpPost("{id}/worker")]
+        public async Task<IActionResult> AssignWorker(int id, int workerId)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, booking, PolicyNames.BookingOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            booking = await _bookingsService.AssignBookingWorkerAsync(booking, workerId);
+
+            return Ok(_mapper.Map<BookingDto>(booking));
+        }
+
         [HttpGet("{id}/payment")]
         public async Task<IActionResult> StartBookingPayment(int id)
         {

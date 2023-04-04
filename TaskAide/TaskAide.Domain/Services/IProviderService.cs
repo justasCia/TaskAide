@@ -10,5 +10,7 @@ namespace TaskAide.Domain.Services
         public Task<Provider?> UpsertProviderAsync(string userId, Provider provider);
         public Task<IEnumerable<Service>> PostProviderServicesAsync(string userId, IEnumerable<int> serviceIds);
         public Task<IEnumerable<Provider>> GetProvidersForBookingAsync(Booking booking);
+        public Task<IEnumerable<Provider>> GetCompanyWorkersAsync(string userId);
+        public Task<Provider> AddCompanyWorkerAsync(string userId, User user);
     }
 }

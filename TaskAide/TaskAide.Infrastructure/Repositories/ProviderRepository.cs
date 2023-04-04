@@ -28,5 +28,14 @@ namespace TaskAide.Infrastructure.Repositories
 
             return await providers.ToListAsync();
         }
+
+        public async Task<Provider?> GetCompanyWithAllInfoAsync(string userId)
+        {
+            return await _dbContext.Providers
+                .Include(p => p.User)
+                .Include(p => p.ProviderServices).ThenInclude(ps => ps.Service)
+                .Include(p => p.Workers).ThenInclude(w => w.User)
+                .FirstOrDefaultAsync(p=> p.UserId == userId);
+        }
     }
 }

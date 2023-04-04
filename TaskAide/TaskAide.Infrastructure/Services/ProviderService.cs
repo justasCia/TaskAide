@@ -37,11 +37,14 @@ namespace TaskAide.Infrastructure.Services
                 throw new NotFoundException("user not found");
             }
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+
             var exsistingProvider = await _providerRepository.GetAsync(p => p.UserId == userId);
 
             if (exsistingProvider == null)
             {
                 provider.User = user;
+                provider.IsCompany = userRoles.Contains(Roles.Company);
                 provider = await _providerRepository.AddAsync(provider);
             }
             else
@@ -51,6 +54,7 @@ namespace TaskAide.Infrastructure.Services
                 exsistingProvider.PlaceId = provider.PlaceId;
                 exsistingProvider.BasePricePerHour = provider.BasePricePerHour;
                 exsistingProvider.WorkingRange = provider.WorkingRange;
+                exsistingProvider.IsCompany = userRoles.Contains(Roles.Company);
                 provider = await _providerRepository.UpdateAsync(exsistingProvider);
             }
 
@@ -92,11 +96,52 @@ namespace TaskAide.Infrastructure.Services
             var providers = (await _providerRepository.GetProvidersWithTheirServices())
                 .Where(provider =>
                     !string.IsNullOrEmpty(provider.AccountId) &&
-                    CalculateDistance(provider.Location.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange &&
-                    ProvidesRequiredServices(requiredServices, provider)
+                    IsSuitableCompany(provider) &&
+                    ProvidesRequiredServices(requiredServices, provider) &&
+                    CalculateDistance(provider.Location.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange
                 );
 
             return providers;
+        }
+
+        public async Task<IEnumerable<Provider>> GetCompanyWorkersAsync(string userId)
+        {
+            var company = await _providerRepository.GetCompanyWithAllInfoAsync(userId);
+
+            if (company == null)
+            {
+                throw new NotFoundException("Company not found");
+            }
+
+            return company.Workers;
+        }
+
+        public async Task<Provider> AddCompanyWorkerAsync(string userId, User user)
+        {
+            var company = await _providerRepository.GetCompanyWithAllInfoAsync(userId);
+
+            if (company == null)
+            {
+                throw new NotFoundException("Company not found");
+            }
+
+            var worker = new Provider()
+            {
+                User = user,
+                Company = company
+            };
+
+            return await _providerRepository.AddAsync(worker);
+
+        }
+
+        private static bool IsSuitableCompany(Provider provider)
+        {
+            if (!provider.IsCompany) return true;
+
+            return
+                provider.Workers != null && provider.Workers.Any();
+
         }
 
         private static bool ProvidesRequiredServices(IEnumerable<int> requiredServices, Provider provider)

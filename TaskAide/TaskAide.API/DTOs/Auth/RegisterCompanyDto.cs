@@ -2,13 +2,10 @@
 
 namespace TaskAide.API.DTOs.Auth
 {
-    public class RegisterUserDto
+    public class RegisterCompanyDto
     {
         [Required]
-        public string FirstName { get; set; } = default!;
-
-        [Required]
-        public string LastName { get; set; } = default!;
+        public string CompanyName { get; set; } = default!;
 
         [Required]
         [EmailAddress]

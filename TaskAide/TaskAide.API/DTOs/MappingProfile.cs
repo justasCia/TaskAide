@@ -28,17 +28,24 @@ namespace TaskAide.API.DTOs
             CreateMap<ServiceDto, Service>();
 
             //providers
-            CreateMap<Provider, ProviderDto>()
+            CreateMap<Provider, UserDto>()
                 .ForMember(d => d.FirstName, opt => opt.MapFrom(p => p.User.FirstName))
                 .ForMember(d => d.LastName, opt => opt.MapFrom(p => p.User.LastName))
                 .ForMember(d => d.Email, opt => opt.MapFrom(p => p.User.Email))
                 .ForMember(d => d.PhoneNumber, opt => opt.MapFrom(p => p.User.PhoneNumber));
+            CreateMap<Provider, ProviderDto>()
+                .ForMember(d => d.FirstName, opt => opt.MapFrom(p => p.User.FirstName))
+                .ForMember(d => d.LastName, opt => opt.MapFrom(p => p.User.LastName))
+                .ForMember(d => d.Email, opt => opt.MapFrom(p => p.User.Email))
+                .ForMember(d => d.PhoneNumber, opt => opt.MapFrom(p => p.User.PhoneNumber))
+                .ForMember(d => d.CompanyName, opt => opt.MapFrom(p => p.User.CompanyName));
             CreateMap<Provider, ProviderWithInformationDto>()
                 .ForMember(d => d.FirstName, opt => opt.MapFrom(p => p.User.FirstName))
                 .ForMember(d => d.LastName, opt => opt.MapFrom(p => p.User.LastName))
                 .ForMember(d => d.Email, opt => opt.MapFrom(p => p.User.Email))
                 .ForMember(d => d.Location, opt => opt.MapFrom(p => p.Location))
-                .ForMember(d => d.Location, opt => opt.MapFrom(p => new PointDto() { X = p.Location.X, Y = p.Location.Y, PlaceId = p.PlaceId }));
+                .ForMember(d => d.Location, opt => opt.MapFrom(p => new PointDto() { X = p.Location.X, Y = p.Location.Y, PlaceId = p.PlaceId }))
+                .ForMember(d => d.CompanyName, opt => opt.MapFrom(p => p.User.CompanyName));
 
             CreateMap<ProviderInformationDto, Provider>()
                 .ForMember(d => d.Location, opt => opt.MapFrom(p => new Point(p.Location.X, p.Location.Y) { SRID = 4326 }))

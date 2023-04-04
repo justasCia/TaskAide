@@ -7,5 +7,6 @@ namespace TaskAide.Domain.Repositories
     {
         public Task<Provider?> GetProviderWithUserInfoAsync(string userId);
         public Task<IEnumerable<Provider>> GetProvidersWithTheirServices(Expression<Func<Provider, bool>>? expression = null);
+        public Task<Provider?> GetCompanyWithAllInfoAsync(string userId);
     }
 }

@@ -6,8 +6,8 @@
         Rejected,
         InNegotiation,
         Confirmed,
-        Completed,
-        Cancelled,
-        CancelledWithPartialPayment
+        Cancelled, 
+        CancelledWithPartialPayment,
+        Completed
     }
 }

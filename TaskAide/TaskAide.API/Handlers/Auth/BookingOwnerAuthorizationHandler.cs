@@ -22,7 +22,7 @@ namespace TaskAide.API.Handlers.Auth
 
             if (context.User.IsInRole(Roles.Admin) ||
                 context.User.FindFirstValue(JwtRegisteredClaimNames.Sub) == resource.UserId ||
-                (provider != null && provider.Id == resource.ProviderId))
+                (provider != null && (provider.Id == resource.ProviderId || provider.Id == resource.WorkerId)))
             {
                 context.Succeed(requirement);
             }

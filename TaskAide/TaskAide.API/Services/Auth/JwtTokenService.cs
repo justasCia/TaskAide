@@ -28,13 +28,14 @@ namespace TaskAide.API.Services.Auth
             var authClaims = new List<Claim>
             {
                 new("email", user.Email),
-                new("firstName", user.FirstName),
-                new("lastName", user.LastName),
+                new("firstName", string.IsNullOrEmpty(user.FirstName) ? "" : user.FirstName),
+                new("lastName", string.IsNullOrEmpty(user.LastName) ? "" : user.LastName),
+                new("companyName", string.IsNullOrEmpty(user.CompanyName) ? "" : user.CompanyName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Sub, user.Id)
             };
 
-            authClaims.AddRange(userRoles.Select(userRole => new Claim("role", userRole)));
+            authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
 
             var accessSecurityToken = new JwtSecurityToken
             (

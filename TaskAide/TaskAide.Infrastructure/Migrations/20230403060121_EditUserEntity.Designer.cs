@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using TaskAide.Infrastructure.Data;
@@ -12,9 +13,11 @@ using TaskAide.Infrastructure.Data;
 namespace TaskAide.Infrastructure.Migrations
 {
     [DbContext(typeof(TaskAideContext))]
-    partial class TaskAideContextModelSnapshot : ModelSnapshot
+    [Migration("20230403060121_EditUserEntity")]
+    partial class EditUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,15 +411,18 @@ namespace TaskAide.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsCompany")
                         .HasColumnType("bit");
 
                     b.Property<Point>("Location")
+                        .IsRequired()
                         .HasColumnType("geography");
 
                     b.Property<string>("PlaceId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
