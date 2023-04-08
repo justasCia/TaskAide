@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TaskAide.Domain.Entities.Bookings;
+using TaskAide.Domain.Entities.Reports;
 using TaskAide.Domain.Entities.Services;
 using TaskAide.Domain.Entities.Users;
 using TaskAide.Domain.Exceptions;
@@ -14,13 +15,15 @@ namespace TaskAide.Infrastructure.Services
         private readonly IProviderRepository _providerRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IProviderServiceRepository _providerServiceRepository;
+        private readonly IBookingRepository _bookingRepository;
 
-        public ProviderService(UserManager<User> userManager, IProviderRepository providerRepository, IServiceRepository serviceRepository, IProviderServiceRepository providerServiceRepository)
+        public ProviderService(UserManager<User> userManager, IProviderRepository providerRepository, IServiceRepository serviceRepository, IProviderServiceRepository providerServiceRepository, IBookingRepository bookingRepository)
         {
             _userManager = userManager;
             _providerRepository = providerRepository;
             _serviceRepository = serviceRepository;
             _providerServiceRepository = providerServiceRepository;
+            _bookingRepository = bookingRepository;
         }
 
         public async Task<Provider?> GetProviderAsync(string userId)
@@ -97,8 +100,9 @@ namespace TaskAide.Infrastructure.Services
                 .Where(provider =>
                     !string.IsNullOrEmpty(provider.AccountId) &&
                     IsSuitableCompany(provider) &&
+                    provider.CompanyId == null &&
                     ProvidesRequiredServices(requiredServices, provider) &&
-                    CalculateDistance(provider.Location.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange
+                    CalculateDistance(provider.Location!.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange
                 );
 
             return providers;
@@ -133,6 +137,100 @@ namespace TaskAide.Infrastructure.Services
 
             return await _providerRepository.AddAsync(worker);
 
+        }
+
+        public async Task<ProviderReport> GetProviderReportAsync(string userId)
+        {
+            var provider = await _providerRepository.GetAsync(p => p.UserId == userId);
+
+            var bookings = await _bookingRepository.GetBookingsWithAllInformation(booking =>
+                booking.Provider.UserId == userId);
+
+            var bookingsWithRevenue = bookings.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment);
+
+            List<WorkerReport>? workerReports = null;
+            if (provider!.IsCompany)
+            {
+                var workers = bookings.Select(b => b.Worker)
+                    .Where(worker => worker != null)
+                    .DistinctBy(worker => worker!.Id);
+
+                workerReports = GetWorkersReport(bookings, workers!);
+            }
+
+            return new ProviderReport()
+            {
+                MaterialsCost = bookingsWithRevenue.Sum(b => b.CalculateMaterialsCost()),
+                ServicesRevenue = bookingsWithRevenue.Sum(b => b.CalculateServicesCost()),
+                TotalIncome = bookingsWithRevenue.Sum(b => b.CalculateTotalCost()),
+                RevenueFromEachService = GetServiceRevenueByType(bookingsWithRevenue),
+                BookingRequests = bookings.Count(),
+                BookingRequestsCancelled = bookings.Count(b => b.Status == BookingStatus.Cancelled),
+                BookingRequestsCancelledWithPartialPayment = bookingsWithRevenue.Count(b => b.Status == BookingStatus.CancelledWithPartialPayment),
+                BookingRequestsCompleted = bookingsWithRevenue.Count(b => b.Status == BookingStatus.Completed),
+                FavouriteBookingRequest = bookings.SelectMany(booking => booking.Services).GroupBy(s => s.Service.Name).OrderByDescending(g => g.Count()).FirstOrDefault()?.Key!,
+                WorkerReports = workerReports
+            };
+        }
+
+        public async Task<WorkerReport> GetWorkerReportAsync(string userId)
+        {
+            var bookings = await _bookingRepository.GetBookingsWithAllInformation(booking =>
+                booking.Worker != null && booking.Worker.UserId == userId);
+
+            var bookingsWithRevenue = bookings.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment);
+
+            var workerReport = new WorkerReport()
+            {
+                ServicesRevenue = bookingsWithRevenue.Sum(b => b.CalculateServicesCost()),
+                RevenueFromEachService = GetServiceRevenueByType(bookingsWithRevenue),
+                BookingRequests = bookings.Count(),
+                BookingRequestsCancelled = bookings.Count(b => b.Status == BookingStatus.Cancelled),
+                BookingRequestsCancelledWithPartialPayment = bookingsWithRevenue.Count(b => b.Status == BookingStatus.CancelledWithPartialPayment),
+                BookingRequestsCompleted = bookingsWithRevenue.Count(b => b.Status == BookingStatus.Completed)
+            };
+
+            return workerReport;
+        }
+
+        private static List<WorkerReport> GetWorkersReport(IEnumerable<Booking> bookings, IEnumerable<Provider> workers)
+        {
+            List<WorkerReport>? workerReports = new List<WorkerReport>();
+            foreach (var worker in workers)
+            {
+                var workerBookigs = bookings.Where(b => b.WorkerId == worker!.Id);
+                var workerBookingsWithRevenue = workerBookigs.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment);
+                var workerReport = new WorkerReport()
+                {
+                    FirstName = worker!.User!.FirstName!,
+                    LastName = worker.User.LastName!,
+                    ServicesRevenue = workerBookingsWithRevenue.Sum(b => b.CalculateServicesCost()),
+                    RevenueFromEachService = GetServiceRevenueByType(workerBookingsWithRevenue),
+                    BookingRequests = workerBookigs.Count(),
+                    BookingRequestsCancelled = workerBookigs.Count(b => b.Status == BookingStatus.Cancelled),
+                    BookingRequestsCancelledWithPartialPayment = workerBookingsWithRevenue.Count(b => b.Status == BookingStatus.CancelledWithPartialPayment),
+                    BookingRequestsCompleted = workerBookingsWithRevenue.Count(b => b.Status == BookingStatus.Completed)
+                };
+                workerReports.Add(workerReport);
+            }
+
+            return workerReports;
+        }
+
+        private static IDictionary<string, decimal> GetServiceRevenueByType(IEnumerable<Booking> bookings)
+        {
+            var serviceRevenueByType = new Dictionary<string, decimal>();
+
+            foreach (var bookingService in bookings.SelectMany(b => b.Services))
+            {
+                if (!serviceRevenueByType.ContainsKey(bookingService.Service.Name))
+                {
+                    serviceRevenueByType[bookingService.Service.Name] = 0m;
+                }
+                serviceRevenueByType[bookingService.Service.Name] += bookingService.Price;
+            }
+
+            return serviceRevenueByType;
         }
 
         private static bool IsSuitableCompany(Provider provider)

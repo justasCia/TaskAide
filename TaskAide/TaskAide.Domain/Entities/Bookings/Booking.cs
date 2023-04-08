@@ -29,11 +29,8 @@ namespace TaskAide.Domain.Entities.Bookings
         public int? ReviewId { get; set; }
         public Review? Review { get; set; }
 
-        public decimal CalculateTotalCost()
-        {
-            var totalMaterialPrice = MaterialPrices.Sum(mc => mc.Price);
-            var totalServicesPrice = Services.Sum(s => s.Price);
-            return totalMaterialPrice + totalServicesPrice;
-        }
+        public decimal CalculateMaterialsCost() => MaterialPrices.Sum(mc => mc.Price);
+        public decimal CalculateServicesCost() => Services.Sum(s => s.Price);
+        public decimal CalculateTotalCost() => CalculateMaterialsCost() + CalculateServicesCost();
     }
 }

@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using TaskAide.API.Common;
 using TaskAide.API.DTOs.Bookings;
+using TaskAide.API.DTOs.Reviews;
 using TaskAide.API.DTOs.Users;
 using TaskAide.Domain.Entities.Auth;
 using TaskAide.Domain.Entities.Bookings;
 using TaskAide.Domain.Entities.Services;
+using TaskAide.Domain.Entities.Users;
 using TaskAide.Domain.Services;
 
 namespace TaskAide.API.Controllers
@@ -101,6 +103,7 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpPut("{id}/services")]
+        [Authorize(Roles = Roles.Provider + ", " + Roles.Company + ", " + Roles.CompanyWorker)]
         public async Task<IActionResult> UpdateBookingServices(int id, [FromBody] IEnumerable<BookingServiceDto> services)
         {
             var booking = await _bookingsService.GetBookingAsync(id);
@@ -120,6 +123,7 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpPut("{id}/materialPrices")]
+        [Authorize(Roles = Roles.Provider + ", " + Roles.Company + ", " + Roles.CompanyWorker)]
         public async Task<IActionResult> PostBookingMaterialPrices(int id, [FromBody] IEnumerable<BookingMaterialPriceDto> materialPrices)
         {
             var booking = await _bookingsService.GetBookingAsync(id);
@@ -137,6 +141,7 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpPost("{id}/worker")]
+        [Authorize(Roles = Roles.Company)]
         public async Task<IActionResult> AssignWorker(int id, int workerId)
         {
             var booking = await _bookingsService.GetBookingAsync(id);
@@ -154,6 +159,7 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpGet("{id}/payment")]
+        [Authorize(Roles = Roles.Client)]
         public async Task<IActionResult> StartBookingPayment(int id)
         {
             var booking = await _bookingsService.GetBookingAsync(id);
@@ -179,6 +185,23 @@ namespace TaskAide.API.Controllers
 
             Response.Headers.Add("Location", $"{_taskAideAppUrl}/orders/{booking.Id}");
             return new StatusCodeResult(303);
+        }
+
+        [HttpPost("{id}/review")]
+        [Authorize(Roles = Roles.Client)]
+        public async Task<IActionResult> PostBookingReview(int id, ReviewDto review)
+        {
+            var booking = await _bookingsService.GetBookingAsync(id);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, booking, PolicyNames.BookingOwner);
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            booking = await _bookingsService.AddBookingReviewAsync(booking, _mapper.Map<Review>(review));
+
+            return Ok(_mapper.Map<BookingDto>(booking));
         }
     }
 }

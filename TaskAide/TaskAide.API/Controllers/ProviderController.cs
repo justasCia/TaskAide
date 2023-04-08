@@ -87,5 +87,14 @@ namespace TaskAide.API.Controllers
 
             return Ok(_mapper.Map<ProviderDto>(provider));
         }
+
+        [HttpGet]
+        [Route("report")]
+        public async Task<IActionResult> GetProviderReport()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            return Ok(await _providersService.GetProviderReportAsync(userId!));
+        }
     }
 }

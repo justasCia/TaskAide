@@ -1,5 +1,6 @@
 ﻿using TaskAide.API.DTOs.Auth;
 using TaskAide.API.DTOs.Geometry;
+using TaskAide.API.DTOs.Reviews;
 using TaskAide.API.DTOs.Users;
 
 namespace TaskAide.API.DTOs.Bookings
@@ -45,6 +46,7 @@ namespace TaskAide.API.DTOs.Bookings
         public string AdditionalInformation { get; set; } = default!;
         public string Status { get; set; } = default!;
         public bool Paid { get; set; }
+        public ReviewDto? Review { get; set; }
 
         //review(nullable)
     }

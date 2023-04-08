@@ -19,7 +19,8 @@ namespace TaskAide.Infrastructure.Repositories
                 .Include(b => b.Provider).ThenInclude(p => p.User)
                 .Include(b => b.Services).ThenInclude(bs => bs.Service)
                 .Include(b => b.Worker).ThenInclude(w => w.User)
-                .Include(b => b.MaterialPrices);
+                .Include(b => b.MaterialPrices)
+                .Include(b => b.Review);
 
             if (expression != null)
             {

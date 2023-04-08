@@ -172,6 +172,20 @@ namespace TaskAide.Infrastructure.Services
             return await _bookingRepository.UpdateAsync(booking);
         }
 
+        public async Task<Booking> AddBookingReviewAsync(Booking booking, Review review)
+        {
+            if (booking.Review != null)
+            {
+                throw new BadRequestException("Booking already has a review");
+            }
+
+            review.BookingId = booking.Id;
+            booking.Review = review;
+            booking = await _bookingRepository.UpdateAsync(booking);
+
+            return booking;
+        }
+
         private static BookingStatus GetBookingStatus(Booking booking, string status)
         {
             if (!Enum.TryParse(status, out BookingStatus bookingStatus))

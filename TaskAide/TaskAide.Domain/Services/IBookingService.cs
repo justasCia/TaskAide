@@ -12,5 +12,6 @@ namespace TaskAide.Domain.Services
         public Task<Booking> UpdateBookingServicesAsync(Booking booking, IEnumerable<BookingService> services);
         public Task<Booking> PostBookingMaterialPricesAsync(Booking booking, IEnumerable<BookingMaterialPrice> materialPrices);
         public Task<Booking> AssignBookingWorkerAsync(Booking booking, int workerId);
+        public Task<Booking> AddBookingReviewAsync(Booking booking, Review review);
     }
 }

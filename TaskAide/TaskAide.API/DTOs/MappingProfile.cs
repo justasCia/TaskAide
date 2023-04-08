@@ -3,6 +3,7 @@ using NetTopologySuite.Geometries;
 using TaskAide.API.DTOs.Auth;
 using TaskAide.API.DTOs.Bookings;
 using TaskAide.API.DTOs.Geometry;
+using TaskAide.API.DTOs.Reviews;
 using TaskAide.API.DTOs.Services;
 using TaskAide.API.DTOs.Users;
 using TaskAide.Domain.Entities.Bookings;
@@ -65,7 +66,9 @@ namespace TaskAide.API.DTOs
                 .ForMember(d => d.Service, opt => opt.Ignore())
                 .ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<BookingMaterialPriceDto, BookingMaterialPrice>();
+            CreateMap<ReviewDto, Review>();
 
+            CreateMap<Review, ReviewDto>();
             CreateMap<BookingService, ServiceDto>()
                 .ForMember(b => b.Name, opt => opt.MapFrom(b => b.Service.Name));
             CreateMap<BookingService, BookingServiceDto>()
