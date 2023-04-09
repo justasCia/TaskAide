@@ -10,6 +10,7 @@ namespace TaskAide.API.DTOs.Bookings
         public int Id { get; set; }
         public UserDto Client { get; set; } = default!;
         public ProviderDto? Provider { get; set; }
+        public ProviderDto? Worker { get; set; }
         public IEnumerable<BookingServiceDto> Services { get; set; } = Enumerable.Empty<BookingServiceDto>();
         public int TotalHoursOfWork
         {

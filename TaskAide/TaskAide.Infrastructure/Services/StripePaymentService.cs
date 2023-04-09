@@ -70,8 +70,8 @@ namespace TaskAide.Infrastructure.Services
                         Month = 1,
                         Year = 2000,
                     },
-                    FirstName = provider.User.FirstName,
-                    LastName = provider.User.LastName,
+                    FirstName = provider.IsCompany ? provider.User.CompanyName : provider.User.FirstName,
+                    LastName = provider.IsCompany ? provider.User.CompanyName : provider.User.LastName,
                     Email = provider.User.Email,
                 },
             };

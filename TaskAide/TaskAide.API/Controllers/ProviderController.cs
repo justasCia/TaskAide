@@ -96,5 +96,14 @@ namespace TaskAide.API.Controllers
 
             return Ok(await _providersService.GetProviderReportAsync(userId!));
         }
+
+        [HttpGet]
+        [Route("workerReport")]
+        public async Task<IActionResult> GetWorkerrReport()
+        {
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            return Ok(await _providersService.GetWorkerReportAsync(userId!));
+        }
     }
 }

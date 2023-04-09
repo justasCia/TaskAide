@@ -19,7 +19,10 @@ namespace TaskAide.Infrastructure.Repositories
 
         public async Task<IEnumerable<Provider>> GetProvidersWithTheirServices(Expression<Func<Provider, bool>>? expression = null)
         {
-            var providers = _dbContext.Providers.Include(p => p.ProviderServices).Include(p => p.User);
+            var providers = _dbContext.Providers
+                .Include(p => p.ProviderServices)
+                .Include(p => p.User)
+                .Include(p => p.Bookings).ThenInclude(b => b.Review);
 
             if (expression != null)
             {
