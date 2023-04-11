@@ -139,12 +139,16 @@ namespace TaskAide.Infrastructure.Services
 
         }
 
-        public async Task<ProviderReport> GetProviderReportAsync(string userId)
+        public async Task<ProviderReport> GetProviderReportAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
             var provider = await _providerRepository.GetAsync(p => p.UserId == userId);
 
+            Func<Booking, bool> dateFilter = DateFilter(startDate, endDate);
+
             var bookings = await _bookingRepository.GetBookingsWithAllInformation(booking =>
                 booking.Provider.UserId == userId);
+
+            bookings = bookings.Where(dateFilter);
 
             var bookingsWithRevenue = bookings.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment);
 
@@ -173,10 +177,14 @@ namespace TaskAide.Infrastructure.Services
             };
         }
 
-        public async Task<WorkerReport> GetWorkerReportAsync(string userId)
+        public async Task<WorkerReport> GetWorkerReportAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
         {
+            Func<Booking, bool> dateFilter = DateFilter(startDate, endDate);
+
             var bookings = await _bookingRepository.GetBookingsWithAllInformation(booking =>
                 booking.Worker != null && booking.Worker.UserId == userId);
+
+            bookings = bookings.Where(dateFilter);
 
             var bookingsWithRevenue = bookings.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment);
 
@@ -191,6 +199,30 @@ namespace TaskAide.Infrastructure.Services
             };
 
             return workerReport;
+        }
+
+        private static Func<Booking, bool> DateFilter(DateTime? startDate, DateTime? endDate)
+        {
+            return (Booking booking) =>
+            {
+                if (startDate != null && endDate != null)
+                {
+                    return (booking.StartDate >= startDate || booking.EndDate >= startDate) &&
+                    (booking.StartDate <= endDate || booking.EndDate <= endDate);
+                }
+                else if (startDate != null)
+                {
+                    return booking.StartDate >= startDate || booking.EndDate >= startDate;
+                }
+                else if (endDate != null)
+                {
+                    return booking.EndDate <= endDate || booking.EndDate <= endDate;
+                }
+                else
+                {
+                    return true;
+                }
+            };
         }
 
         private static List<WorkerReport> GetWorkersReport(IEnumerable<Booking> bookings, IEnumerable<Provider> workers)

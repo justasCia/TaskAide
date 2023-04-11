@@ -90,20 +90,20 @@ namespace TaskAide.API.Controllers
 
         [HttpGet]
         [Route("report")]
-        public async Task<IActionResult> GetProviderReport()
+        public async Task<IActionResult> GetProviderReport(DateTime? startDate = null, DateTime? endDate = null)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            return Ok(await _providersService.GetProviderReportAsync(userId!));
+            return Ok(await _providersService.GetProviderReportAsync(userId!, startDate, endDate));
         }
 
         [HttpGet]
         [Route("workerReport")]
-        public async Task<IActionResult> GetWorkerrReport()
+        public async Task<IActionResult> GetWorkerrReport(DateTime? startDate = null, DateTime? endDate = null)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            return Ok(await _providersService.GetWorkerReportAsync(userId!));
+            return Ok(await _providersService.GetWorkerReportAsync(userId!, startDate, endDate));
         }
     }
 }

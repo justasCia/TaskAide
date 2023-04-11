@@ -13,7 +13,7 @@ namespace TaskAide.Domain.Services
         public Task<IEnumerable<Provider>> GetProvidersForBookingAsync(Booking booking);
         public Task<IEnumerable<Provider>> GetCompanyWorkersAsync(string userId);
         public Task<Provider> AddCompanyWorkerAsync(string userId, User user);
-        public Task<ProviderReport> GetProviderReportAsync(string userId);
-        public Task<WorkerReport> GetWorkerReportAsync(string userId);
+        public Task<ProviderReport> GetProviderReportAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
+        public Task<WorkerReport> GetWorkerReportAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
     }
 }
