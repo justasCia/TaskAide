@@ -12,3 +12,6 @@
 /TaskAide/TaskAide.Domain/obj/Debug/net6.0
 /TaskAide/TaskAide.Infrastructure/bin/Debug/net6.0
 /TaskAide/TaskAide.Domain/obj
+/TaskAide/TaskAide.UnitTests/bin/Debug/net6.0
+/TaskAide/TaskAide.UnitTests/obj/Debug/net6.0
+/TaskAide/TaskAide.UnitTests/obj

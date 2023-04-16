@@ -14,6 +14,8 @@ namespace TaskAide.Infrastructure.Services
 
         public string EncryptString(string plainString)
         {
+            ArgumentNullException.ThrowIfNull(plainString, nameof(plainString));
+
             byte[] encrypted = Encrypt(plainString, _key);
             // Convert bytes to string
             var encryptedString = Convert.ToBase64String(encrypted);
@@ -22,6 +24,8 @@ namespace TaskAide.Infrastructure.Services
 
         public string DecryptString(string encryptedString)
         {
+            ArgumentNullException.ThrowIfNull(encryptedString, nameof(encryptedString));
+
             string decrypted = Decrypt(encryptedString, _key);
             return decrypted;
         }
