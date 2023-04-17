@@ -36,7 +36,7 @@ namespace TaskAide.Infrastructure.Services
             return booking;
         }
 
-        public async Task<IEnumerable<Booking>> GetBookingsAsync(string userId, string? status)
+        public async Task<IEnumerable<Booking>> GetBookingsAsync(string userId, string? status = null, bool? paid = null)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -44,6 +44,8 @@ namespace TaskAide.Infrastructure.Services
             {
                 throw new NotFoundException("User not found");
             }
+
+            IOrderedEnumerable<Booking>? bookings;
 
             if (!user.IsProvider)
             {
@@ -53,15 +55,18 @@ namespace TaskAide.Infrastructure.Services
                     {
                         if (status == "done")
                         {
-                            return (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                            bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                            return ReturnBookings(paid, bookings);
                         }
                         throw new BadRequestException("Invalid booking status");
                     }
 
-                    return (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                    bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                    return ReturnBookings(paid, bookings);
                 }
 
-                return (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId)).OrderByDescending(b => b.Id);
+                bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId)).OrderByDescending(b => b.Id);
+                return ReturnBookings(paid, bookings);
             }
 
             var provider = await _providerRepository.GetAsync(p => p.UserId == user.Id);
@@ -74,15 +79,18 @@ namespace TaskAide.Infrastructure.Services
                     {
                         if (status == "done")
                         {
-                            return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                            bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                            return ReturnBookings(paid, bookings);
                         }
                         throw new BadRequestException("Invalid booking status");
                     }
 
-                    return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                    bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                    return ReturnBookings(paid, bookings);
                 }
 
-                return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id)).OrderByDescending(b => b.Id);
+                bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id)).OrderByDescending(b => b.Id);
+                return ReturnBookings(paid, bookings);
             }
 
             if (provider == null || string.IsNullOrEmpty(provider.BankAccount))
@@ -96,15 +104,28 @@ namespace TaskAide.Infrastructure.Services
                 {
                     if (status == "done")
                     {
-                        return (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                        bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                        return ReturnBookings(paid, bookings);
                     }
                     throw new BadRequestException("Invalid booking status");
                 }
 
-                return (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id && b.Status == bookingStatus)).OrderByDescending(b => b.Id);
+                return ReturnBookings(paid, bookings);
             }
 
-            return (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id)).OrderByDescending(b => b.Id);
+            bookings = (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id)).OrderByDescending(b => b.Id);
+            return ReturnBookings(paid, bookings);
+        }
+
+        private static IEnumerable<Booking> ReturnBookings(bool? paid, IOrderedEnumerable<Booking> bookings)
+        {
+            if (paid != null)
+            {
+                return bookings.Where(b => b.Paid == (bool)paid);
+            }
+
+            return bookings;
         }
 
         public async Task<Booking> PostBookingAsync(Booking booking)

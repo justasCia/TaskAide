@@ -143,6 +143,11 @@ namespace TaskAide.Infrastructure.Services
         {
             var provider = await _providerRepository.GetAsync(p => p.UserId == userId);
 
+            if (provider == null)
+            {
+                throw new NotFoundException("Provider not found");
+            }
+
             Func<Booking, bool> dateFilter = DateFilter(startDate, endDate);
 
             var bookings = await _bookingRepository.GetBookingsWithAllInformation(booking =>

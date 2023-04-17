@@ -61,11 +61,11 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBookings(string? status)
+        public async Task<IActionResult> GetBookings(string? status, bool? paid)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            var bookings = await _bookingsService.GetBookingsAsync(userId!, status);
+            var bookings = await _bookingsService.GetBookingsAsync(userId!, status, paid);
 
             return Ok(bookings.Select(b => _mapper.Map<BookingDto>(b)));
         }
