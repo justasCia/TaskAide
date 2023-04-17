@@ -26,6 +26,9 @@ namespace TaskAide.Domain.Entities.Bookings
         public bool Paid { get; set; }
         public string? CheckoutId { get; set; }
 
+        public bool ProviderSeen { get; set; }
+        public bool ClientSeen { get; set; }
+
         public int? ReviewId { get; set; }
         public Review? Review { get; set; }
 

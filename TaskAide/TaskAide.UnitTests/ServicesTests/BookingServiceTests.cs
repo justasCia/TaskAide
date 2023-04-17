@@ -338,7 +338,7 @@ namespace TaskAide.UnitTests.ServicesTests
             var review = Builder<Review>.CreateNew().Build();
 
             // Act
-            Func<Task> action = async () => await _bookingService.AddBookingReviewAsync(booking, review);
+            var action = async () => await _bookingService.AddBookingReviewAsync(booking, review);
 
             // Assert
             await action.Should().ThrowAsync<BadRequestException>()

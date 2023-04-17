@@ -51,6 +51,10 @@ namespace TaskAide.Infrastructure.Services
                 {
                     if (!Enum.TryParse(status, out BookingStatus bookingStatus))
                     {
+                        if (status == "done")
+                        {
+                            return (await _bookingRepository.GetBookingsWithAllInformation(b => b.UserId == userId && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                        }
                         throw new BadRequestException("Invalid booking status");
                     }
 
@@ -68,6 +72,10 @@ namespace TaskAide.Infrastructure.Services
                 {
                     if (!Enum.TryParse(status, out BookingStatus bookingStatus))
                     {
+                        if (status == "done")
+                        {
+                            return (await _bookingRepository.GetBookingsWithAllInformation(b => b.WorkerId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                        }
                         throw new BadRequestException("Invalid booking status");
                     }
 
@@ -86,6 +94,10 @@ namespace TaskAide.Infrastructure.Services
             {
                 if (!Enum.TryParse(status, out BookingStatus bookingStatus))
                 {
+                    if (status == "done")
+                    {
+                        return (await _bookingRepository.GetBookingsWithAllInformation(b => b.ProviderId == provider!.Id && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.CancelledWithPartialPayment))).OrderByDescending(b => b.Id);
+                    }
                     throw new BadRequestException("Invalid booking status");
                 }
 
@@ -115,6 +127,9 @@ namespace TaskAide.Infrastructure.Services
                 throw new NotFoundException($"User not found.");
             }
 
+            booking.ClientSeen = true;
+            booking.ProviderSeen = false;
+
             return await _bookingRepository.AddAsync(booking);
         }
 
@@ -123,6 +138,8 @@ namespace TaskAide.Infrastructure.Services
             BookingStatus bookingStatus = GetBookingStatus(booking, status);
 
             booking.Status = bookingStatus;
+            booking.ClientSeen = false;
+            booking.ProviderSeen = false;
 
             return await _bookingRepository.UpdateAsync(booking);
         }
@@ -145,6 +162,8 @@ namespace TaskAide.Infrastructure.Services
             await _bookingServiceRepository.DeleteListAsync(booking.Services.ToList());
 
             booking.Services = serviceList;
+            booking.ClientSeen = false;
+            booking.ProviderSeen = true;
 
             return await _bookingRepository.UpdateAsync(booking);
         }
@@ -154,6 +173,8 @@ namespace TaskAide.Infrastructure.Services
             await _bookingRepository.RemoveMaterialPricesAsync(booking);
 
             booking.MaterialPrices = materialPrices.ToList();
+            booking.ClientSeen = false;
+            booking.ProviderSeen = true;
 
             return await _bookingRepository.UpdateAsync(booking);
         }
