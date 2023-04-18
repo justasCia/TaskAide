@@ -134,7 +134,7 @@ namespace TaskAide.API.Services.Auth
 
             if (user == null)
             {
-                throw new BadRequestException("Invalid access token or refresh token");
+                throw new UnauthorizedException("Invalid access token or refresh token");
             }
 
             var dbRefreshTokens = await _refreshTokenRepository.ListAsync(rt => rt.UserId == user.Id);
@@ -142,7 +142,7 @@ namespace TaskAide.API.Services.Auth
 
             if (dbRefreshToken == null || dbRefreshToken.RefreshTokenExpiryTime < DateTime.Now)
             {
-                throw new BadRequestException("Invalid access token or refresh token");
+                throw new UnauthorizedException("Invalid access token or refresh token");
             }
 
             await _refreshTokenRepository.DeleteAsync(dbRefreshToken);

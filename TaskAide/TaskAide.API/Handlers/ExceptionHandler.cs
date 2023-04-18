@@ -44,6 +44,10 @@ namespace TaskAide.API.Handlers
             {
                 status = HttpStatusCode.BadRequest;
             }
+            else if (exceptionType == typeof(UnauthorizedException))
+            {
+                status = HttpStatusCode.Unauthorized;
+            }
             else
             {
                 status = HttpStatusCode.InternalServerError;

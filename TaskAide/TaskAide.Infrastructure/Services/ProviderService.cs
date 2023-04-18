@@ -99,7 +99,6 @@ namespace TaskAide.Infrastructure.Services
             var providers = (await _providerRepository.GetProvidersWithTheirServices())
                 .Where(provider =>
                     !string.IsNullOrEmpty(provider.AccountId) &&
-                    IsSuitableCompany(provider) &&
                     provider.CompanyId == null &&
                     ProvidesRequiredServices(requiredServices, provider) &&
                     CalculateDistance(provider.Location!.Y, provider.Location.X, booking.Address.Y, booking.Address.X) < provider.WorkingRange
@@ -268,15 +267,6 @@ namespace TaskAide.Infrastructure.Services
             }
 
             return serviceRevenueByType;
-        }
-
-        private static bool IsSuitableCompany(Provider provider)
-        {
-            if (!provider.IsCompany) return true;
-
-            return
-                provider.Workers != null && provider.Workers.Any();
-
         }
 
         private static bool ProvidesRequiredServices(IEnumerable<int> requiredServices, Provider provider)
