@@ -14,6 +14,7 @@ namespace TaskAide.API.DTOs.Users
         public decimal WorkingRange { get; set; } = default!;
         public decimal BasePricePerHour { get; set; }
         public string? BankAccount { get; set; } = default!;
+        public string? EmploymentNumberOrCompanyCode { get; set; }
         public ICollection<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();
         public double? Rating { 
             get

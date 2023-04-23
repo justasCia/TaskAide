@@ -13,6 +13,7 @@ namespace TaskAide.Domain.Entities.Users
         public string? Description { get; set; } = default!;
         public Point? Location { get; set; } = default!;
         public string? PlaceId { get; set; } = default!;
+        public string? EmploymentNumberOrCompanyCode { get; set; }
 
         public string? AccountId { get; set; }
         public string? BankAccount { get; set; }

@@ -90,11 +90,6 @@ static void AddAuthentication(WebApplicationBuilder builder)
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-        //.AddGoogle(googleOptions =>
-        //{
-        //    googleOptions.ClientId = builder.Configuration[Constants.Configuration.Authentication.Google.ClientId];
-        //    googleOptions.ClientSecret = builder.Configuration[Constants.Configuration.Authentication.Google.ClientSecret];
-        //})
         .AddJwtBearer(options =>
         {
             options.SaveToken = true;

@@ -58,6 +58,7 @@ namespace TaskAide.Infrastructure.Services
                 exsistingProvider.BasePricePerHour = provider.BasePricePerHour;
                 exsistingProvider.WorkingRange = provider.WorkingRange;
                 exsistingProvider.IsCompany = userRoles.Contains(Roles.Company);
+                exsistingProvider.EmploymentNumberOrCompanyCode = provider.EmploymentNumberOrCompanyCode;
                 provider = await _providerRepository.UpdateAsync(exsistingProvider);
             }
 

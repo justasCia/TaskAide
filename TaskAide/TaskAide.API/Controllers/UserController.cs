@@ -22,13 +22,13 @@ namespace TaskAide.API.Controllers
         }
 
         [HttpGet("profile")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             var user = await _userService.GetUserAsync(userId!);
 
-            return Ok(_mapper.Map<UserDto >(user));
-;        }
+            return Ok(_mapper.Map<UserDto>(user));
+        }
     }
 }
