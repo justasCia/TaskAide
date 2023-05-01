@@ -46,7 +46,7 @@ namespace TaskAide.API.DTOs
                 .ForMember(d => d.LastName, opt => opt.MapFrom(p => p.User.LastName))
                 .ForMember(d => d.Email, opt => opt.MapFrom(p => p.User.Email))
                 .ForMember(d => d.Location, opt => opt.MapFrom(p => p.Location))
-                .ForMember(d => d.Location, opt => opt.MapFrom(p => new PointDto() { X = p.Location.X, Y = p.Location.Y, PlaceId = p.PlaceId }))
+                .ForMember(d => d.Location, opt => opt.MapFrom(p => new PointDto() { X = p.Location!.X, Y = p.Location.Y, PlaceId = p.PlaceId! }))
                 .ForMember(d => d.CompanyName, opt => opt.MapFrom(p => p.User.CompanyName));
 
             CreateMap<ProviderInformationDto, Provider>()

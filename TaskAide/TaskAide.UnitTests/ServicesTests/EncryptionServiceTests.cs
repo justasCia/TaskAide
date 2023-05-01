@@ -64,7 +64,7 @@ namespace TaskAide.UnitTests.ServicesTests
         public void EncryptString_WithNullString_ThrowsException()
         {
             // Arrange, Act & Assert
-            _sut.Invoking(x => x.EncryptString(null))
+            _sut.Invoking(x => x.EncryptString(null!))
                 .Should().Throw<ArgumentNullException>()
                 .WithMessage("Value cannot be null. (Parameter 'plainString')");
         }
@@ -73,7 +73,7 @@ namespace TaskAide.UnitTests.ServicesTests
         public void DecryptString_WithNullString_ThrowsException()
         {
             // Arrange, Act & Assert
-            _sut.Invoking(x => x.DecryptString(null))
+            _sut.Invoking(x => x.DecryptString(null!))
                 .Should().Throw<ArgumentNullException>()
                 .WithMessage("Value cannot be null. (Parameter 'encryptedString')");
         }

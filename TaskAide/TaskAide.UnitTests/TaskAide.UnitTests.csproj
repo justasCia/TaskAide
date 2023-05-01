@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TaskAide.API\TaskAide.API.csproj" />
     <ProjectReference Include="..\TaskAide.Infrastructure\TaskAide.Infrastructure.csproj" />
   </ItemGroup>
 

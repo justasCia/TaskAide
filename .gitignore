@@ -15,3 +15,7 @@
 /TaskAide/TaskAide.UnitTests/bin/Debug/net6.0
 /TaskAide/TaskAide.UnitTests/obj/Debug/net6.0
 /TaskAide/TaskAide.UnitTests/obj
+/TaskAide/TaskAide.API/bin/Release/net6.0/publish
+/TaskAide/TaskAide.API/bin/Release/net6.0
+/TaskAide/TaskAide.Domain/bin/Release/net6.0
+/TaskAide/TaskAide.Infrastructure/bin/Release/net6.0

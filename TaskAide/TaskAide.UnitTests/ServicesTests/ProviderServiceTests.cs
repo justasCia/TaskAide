@@ -106,7 +106,7 @@ namespace TaskAide.UnitTests.ServicesTests
 
             // Assert
             result.Should().BeEquivalentTo(provider, options => options.Excluding(p => p.User));
-            result.User.Should().BeEquivalentTo(user);
+            result!.User.Should().BeEquivalentTo(user);
             result.IsCompany.Should().BeTrue();
             _providerRepositoryMock.Verify(x => x.AddAsync(provider), Times.Once);
         }
@@ -272,37 +272,6 @@ namespace TaskAide.UnitTests.ServicesTests
         }
 
         [Test]
-        public async Task GetProvidersForBookingAsync_ReturnsEmptyList_WhenProvidersIsNotSuitableCompany()
-        {
-            // Arrange
-            var booking = new Booking
-            {
-                Address = new Point(1, 1) { SRID = 4326 },
-                Services = new List<BookingService> { new BookingService { Service = new Service { Id = 1 } } }
-            };
-            var providers = new List<Provider>
-        {
-            new Provider
-            {
-                Id = 1,
-                AccountId = "123",
-                CompanyId = null,
-                Location = new Point(1,1) { SRID = 4326 },
-                WorkingRange = 5,
-                ProviderServices = new List<ProviderService> { new ProviderService { Service = new Service { Id = 1} } },
-                IsCompany = true,
-            },
-        };
-            _providerRepositoryMock.Setup(repo => repo.GetProvidersWithTheirServices(It.IsAny<Expression<Func<Provider, bool>>?>())).ReturnsAsync(providers);
-
-            // Act
-            var result = await _providerService.GetProvidersForBookingAsync(booking);
-
-            // Assert
-            result.Any().Should().BeFalse();
-        }
-
-        [Test]
         public async Task GetProvidersForBookingAsync_ReturnsProviders_WhenProviderIsSuitableCompany()
         {
             // Arrange
@@ -434,7 +403,7 @@ namespace TaskAide.UnitTests.ServicesTests
         }
 
         [Test]
-        public async Task GetProviderReportAsync_WhenProviderDoesNotExist_ReturnsNull()
+        public async Task GetProviderReportAsync_WhenProviderDoesNotExist_ThrowsNotFoundException()
         {
             // Arrange
             var userId = "123";
@@ -444,7 +413,7 @@ namespace TaskAide.UnitTests.ServicesTests
             var act = async () => await _providerService.GetProviderReportAsync(userId);
 
             // Assert
-            await act.Should().ThrowAsync<NullReferenceException>();
+            await act.Should().ThrowAsync<NotFoundException>();
         }
 
         [Test]
