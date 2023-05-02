@@ -99,7 +99,7 @@ namespace TaskAide.API.Controllers
 
         [HttpGet]
         [Route("workerReport")]
-        public async Task<IActionResult> GetWorkerrReport(DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<IActionResult> GetWorkerReport(DateTime? startDate = null, DateTime? endDate = null)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
