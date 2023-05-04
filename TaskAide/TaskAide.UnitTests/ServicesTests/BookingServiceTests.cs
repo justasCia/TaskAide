@@ -84,6 +84,218 @@ namespace TaskAide.UnitTests.ServicesTests
         }
 
         [Test]
+        public async Task GetBookingsAsync_WithValidUserIdAndNoStatusDone_ReturnsDoneBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", "done");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviders_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderAndDoneStatus_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", "done");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderAndPendingStatus_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", "Pending");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderAndInvalidStatus_ThrowsException()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var act = async () => await _bookingService.GetBookingsAsync("userId", "blablalba");
+
+            // Assert
+            await act.Should().ThrowAsync<BadRequestException>();
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderWithoutCompanyId_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().With(x => x.CompanyId = null).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", "done");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderWithoutCompanyIdAndWithoutStatus_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().With(x => x.CompanyId = null).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderWithoutCompanyIdAndWithPendingStatus_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().With(x => x.CompanyId = null).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", "Pending");
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Count().Should().Be(bookings.Count());
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderWithoutCompanyIdAndInvalidStatus_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().With(x => x.CompanyId = null).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var act = async () => await _bookingService.GetBookingsAsync("userId", "blablabla");
+
+            // Assert
+            await act.Should().ThrowAsync<BadRequestException>();
+        }
+
+        [Test]
+        public async Task GetBookingsAsyncValidUserAndPaid_ReturnsBookings()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var provider = Builder<Provider>.CreateNew().With(x => x.CompanyId = null).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+            _providerRepositoryMock.Setup(x => x.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>())).ReturnsAsync(provider);
+
+            // Act
+            var result = await _bookingService.GetBookingsAsync("userId", null, true);
+
+            // Assert
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task GetBookingsAsync_WithProviderButNoProviderInformation_ThrowsException()
+        {
+            // Arrange
+            var user = Builder<User>.CreateNew().With(x => x.IsProvider = true).Build();
+            var bookings = Builder<Booking>.CreateListOfSize(10)
+                .Build();
+            _userManagerMock.Setup(m => m.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _bookingRepositoryMock.Setup(x => x.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>?>())).ReturnsAsync(bookings);
+
+            // Act
+            var act = async() => await _bookingService.GetBookingsAsync("userId");
+
+            // Assert
+            await act.Should().ThrowAsync<BadRequestException>();
+        }
+
+        [Test]
         [TestCase(BookingStatus.Pending)]
         [TestCase(BookingStatus.Confirmed)]
         [TestCase(BookingStatus.Rejected)]

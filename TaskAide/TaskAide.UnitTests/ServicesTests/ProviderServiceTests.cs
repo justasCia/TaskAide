@@ -398,7 +398,7 @@ namespace TaskAide.UnitTests.ServicesTests
             result.BookingRequests.Should().Be(bookings.Count);
             result.BookingRequestsCancelled.Should().Be(bookings.Count(b => b.Status == BookingStatus.Cancelled));
             result.BookingRequestsCancelledWithPartialPayment.Should().Be(bookings.Count(b => b.Status == BookingStatus.CancelledWithPartialPayment));
-            result.BookingRequestsCompleted.Should().Be(bookings.Count(b => b.Status == BookingStatus.Completed));;
+            result.BookingRequestsCompleted.Should().Be(bookings.Count(b => b.Status == BookingStatus.Completed)); ;
             result.WorkerReports.Should().BeNull();
         }
 
@@ -443,6 +443,35 @@ namespace TaskAide.UnitTests.ServicesTests
         }
 
         [Test]
+        public async Task GetProviderReportAsync_WithNoBookingsButCompany_ReturnsReportWithZeroValues()
+        {
+            // Arrange
+            var userId = "123";
+            var provider = Builder<Provider>.CreateNew().With(x => x.IsCompany = true).Build();
+            _providerRepositoryMock.Setup(r => r.GetAsync(It.IsAny<Expression<Func<Provider, bool>>>()))
+                                    .ReturnsAsync(provider);
+            _bookingRepositoryMock.Setup(r => r.GetBookingsWithAllInformation(It.IsAny<Expression<Func<Booking, bool>>>()))
+                                   .ReturnsAsync(new List<Booking>());
+
+            // Act
+            var result = await _providerService.GetProviderReportAsync(userId);
+
+            // Assert;
+            result.MaterialsCost.Should().Be(0);
+            result.ServicesRevenue.Should().Be(0);
+            result.TotalIncome.Should().Be(0);
+            result.RevenueFromEachService.Should().BeEmpty();
+            result.BookingRequests.Should().Be(0);
+            result.BookingRequestsCancelled.Should().Be(0);
+            result.BookingRequestsCancelledWithPartialPayment.Should().Be(0);
+            result.BookingRequestsCompleted.Should().Be(0);
+            result.FavouriteBookingRequest.Should().BeNull();
+            result.WorkerReports.Should().NotBeNull();
+            result.WorkerReports.Should().BeEmpty();
+        }
+
+
+        [Test]
         public async Task GetWorkerReportAsync_WhenCalledWithValidInputs_ReturnsWorkerReport()
         {
             // Arrange
@@ -469,6 +498,42 @@ namespace TaskAide.UnitTests.ServicesTests
             // Assert
             workerReport.Should().NotBeNull();
             workerReport.ServicesRevenue.Should().Be(bookings.Where(booking => booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.CancelledWithPartialPayment).Sum(b => b.CalculateMaterialsCost()));
+        }
+
+        [Test]
+        public async Task PostProviderServicesAsync_providerNotFound_ThrowsException()
+        {
+            // Arrange
+            var userId = "123";
+            var serviceIds = new List<int>() { 1, 2, 3 };
+
+            // Act
+            var actr = async () => await _providerService.PostProviderServicesAsync(userId, serviceIds);
+
+            // Assert
+            await actr.Should().ThrowAsync<NotFoundException>();
+        }
+
+        [Test]
+        public async Task PostProviderServicesAsync_ProviderFound_ReturnsAddedServices()
+        {
+            // Arrange
+            var userId = "123";
+            var provider = Builder<Provider>.CreateNew().With(p => p.UserId = userId).Build();
+            var serviceIds = new List<int>() { 1, 2, 3 };
+            _providerRepositoryMock.Setup(r => r.GetProviderWithUserInfoAsync(It.IsAny<string>()))
+                                    .ReturnsAsync(provider);
+            _serviceRepositoryMock.Setup(m => m.GetAsync(It.IsAny<Expression<Func<Service, bool>>>())).ReturnsAsync(Builder<Service>.CreateNew().Build());
+
+            // Act
+            var result = await _providerService.PostProviderServicesAsync(userId, serviceIds);
+
+            // Assert
+            _providerServiceRepositoryMock.Verify(m => m.ListAsync(It.IsAny<Expression<Func<ProviderService, bool>>>()), Times.Once);
+            _providerServiceRepositoryMock.Verify(m => m.DeleteListAsync(It.IsAny<List<ProviderService>>()), Times.Once);
+            result.Should().NotBeNull();
+            result.Should().NotBeEmpty();
+            result.Should().HaveCount(3);
         }
     }
 }
