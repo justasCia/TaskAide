@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using Microsoft.Extensions.Configuration;
+using Stripe;
 using Stripe.Checkout;
 using TaskAide.Domain.Entities.Bookings;
 using TaskAide.Domain.Entities.Users;
@@ -14,13 +15,15 @@ namespace TaskAide.Infrastructure.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly AccountService _accountService;
         private readonly SessionService _sessionService;
+        private readonly string _priceId;
 
-        public StripePaymentService(IProviderRepository providerRepository, IBookingRepository bookingRepository)
+        public StripePaymentService(IProviderRepository providerRepository, IBookingRepository bookingRepository, IConfiguration configuration)
         {
             _providerRepository = providerRepository;
             _bookingRepository = bookingRepository;
             _accountService = new AccountService();
             _sessionService = new SessionService();
+            _priceId = configuration["Stripe:PriceId"]!;
         }
 
         public async Task<Provider> AddBankAccountAsync(Provider provider, string bankAccountNumber, string ip)
@@ -129,7 +132,7 @@ namespace TaskAide.Infrastructure.Services
                 Mode = "payment",
                 LineItems = new List<SessionLineItemOptions>
                 {
-                    new SessionLineItemOptions { Price = "price_1Ms4FdBZbZZKguSrwk1D8gSk", Quantity = longPrice },
+                    new SessionLineItemOptions { Price = _priceId, Quantity = longPrice },
                 },
                 PaymentIntentData = new SessionPaymentIntentDataOptions
                 {

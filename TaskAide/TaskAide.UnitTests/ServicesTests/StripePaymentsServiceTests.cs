@@ -1,9 +1,4 @@
-﻿using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
 using TaskAide.Domain.Entities.Users;
 using TaskAide.Domain.Exceptions;
 using TaskAide.Domain.Repositories;
@@ -22,7 +17,8 @@ namespace TaskAide.UnitTests.ServicesTests
         {
             _providerRepositoryMock = new Mock<IProviderRepository>();
             _bookingRepositoryMock = new Mock<IBookingRepository>();
-            _stripePaymentService = new StripePaymentService(_providerRepositoryMock.Object, _bookingRepositoryMock.Object);
+            var mockConfiguration = new Mock<IConfiguration>();
+            _stripePaymentService = new StripePaymentService(_providerRepositoryMock.Object, _bookingRepositoryMock.Object, mockConfiguration.Object);
         }
 
         [Test]

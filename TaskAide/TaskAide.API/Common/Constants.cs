@@ -26,6 +26,12 @@
                 public const string Key = "Encryption:Key";
             }
 
+            public static class Stripe
+            {
+                public const string SecretKey = "Stripe:SecretKey";
+                public const string PriceId = "Stripe:PriceId";
+            }
+
             public const string DatabaseConnectionString = nameof(DatabaseConnectionString);
             public const string TaskAideAppUrl = nameof(TaskAideAppUrl);
         }

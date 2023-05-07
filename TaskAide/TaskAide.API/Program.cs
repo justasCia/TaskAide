@@ -46,28 +46,28 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 AddMapper(builder);
 
-StripeConfiguration.ApiKey = "sk_test_51Ms0GCBZbZZKguSrewCMXDd0MuFFqjbJiyIQFbkKVH8O1UX0KPRETNtrpFR9fLxKhnWC3v8dToS48DFSoM6bx4Mo00DjSyNuA6";
+StripeConfiguration.ApiKey = builder.Configuration[Constants.Configuration.Stripe.SecretKey];
 
 AddAuthentication(builder);
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseCors(builder =>
+if (app.Environment.IsDevelopment())
 {
-    builder.WithOrigins("https://localhost:8100")
-           .AllowAnyHeader()
-           .AllowAnyMethod()
-           .AllowCredentials();
-});
+    app.UseCors(builder =>
+    {
+        builder.WithOrigins("https://localhost:8100")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+}
 
 app.UseCookiePolicy();
 
