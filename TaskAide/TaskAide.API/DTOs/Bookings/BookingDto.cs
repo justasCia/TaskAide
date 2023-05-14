@@ -48,7 +48,5 @@ namespace TaskAide.API.DTOs.Bookings
         public string Status { get; set; } = default!;
         public bool Paid { get; set; }
         public ReviewDto? Review { get; set; }
-
-        //review(nullable)
     }
 }

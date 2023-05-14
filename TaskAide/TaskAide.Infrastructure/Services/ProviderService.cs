@@ -278,7 +278,7 @@ namespace TaskAide.Infrastructure.Services
 
         private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
         {
-            const double radius = 6371; // Earth's radius in kilometers
+            const double radius = 6371;
             var dLat = ToRadians(lat2 - lat1);
             var dLon = ToRadians(lon2 - lon1);
             var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +

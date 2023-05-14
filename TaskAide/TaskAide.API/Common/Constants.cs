@@ -13,14 +13,6 @@
                 public const string RefreshTokenValidityInDays = "JWT:RefreshTokenValidityInDays";
                 public const string RefreshToken = "refreshToken";
             }
-            public static class Authentication
-            {
-                public static class Google
-                {
-                    public const string ClientId = "Authentication:Google:ClientId";
-                    public const string ClientSecret = "Authentication:Google:ClientSecret";
-                }
-            }
             public static class Encryption
             {
                 public const string Key = "Encryption:Key";

@@ -25,7 +25,7 @@ namespace TaskAide.Domain.Entities.Users
         public bool IsCompany { get; set; }
         public string? CompanyName { get; set; }
         public ICollection<Provider> Workers { get; set; } = default!;
-        public int? CompanyId { get; set; } //company id
+        public int? CompanyId { get; set; }
         public Provider? Company { get; set; }
 
         public ICollection<Booking> Bookings { get; set; } = default!;

@@ -119,7 +119,6 @@ static void AddDatabase(WebApplicationBuilder builder)
     builder.Services.AddDbContext<TaskAideContext>(options =>
     {
         var connectionString = builder.Configuration[Constants.Configuration.DatabaseConnectionString];
-        //var connectionString = "Data Source=localhost;Initial Catalog=TaskAide;User ID=sa;Password=TaskA1deComplexP@ssw0rd!;encrypt=false";
         options.UseSqlServer(connectionString, options =>
         {
             options.UseNetTopologySuite();

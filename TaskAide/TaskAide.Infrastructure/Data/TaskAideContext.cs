@@ -26,16 +26,6 @@ namespace TaskAide.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            //modelBuilder.Entity<Provider>()
-            //    .Property(p => p.Location)
-            //    .HasConversion(
-            //        new ValueConverter<Point, string>(
-            //            p => new PointConverter().ConvertToString(p),
-            //            s => (Point)new PointConverter().ConvertFromString(s)
-            //        )
-            //    );
-
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Provider)
                 .WithMany(p => p.Bookings)

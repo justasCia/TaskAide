@@ -61,12 +61,6 @@ namespace TaskAide.API.Controllers
             return Ok(new { accessToken = token.AccessToken });
         }
 
-        //[HttpPost]
-        //[Route("signin-google")]
-        //public async Task<IActionResult> SigninGoogle(LoginUserDto loginUserDto)
-        //{
-        //}
-
         [HttpPost]
         [Route("refreshToken")]
         [Authorize]

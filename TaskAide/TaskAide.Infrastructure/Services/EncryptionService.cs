@@ -17,7 +17,7 @@ namespace TaskAide.Infrastructure.Services
             ArgumentNullException.ThrowIfNull(plainString, nameof(plainString));
 
             byte[] encrypted = Encrypt(plainString, _key);
-            // Convert bytes to string
+
             var encryptedString = Convert.ToBase64String(encrypted);
             return encryptedString;
         }
@@ -40,7 +40,6 @@ namespace TaskAide.Infrastructure.Services
                 byte[] IV = aes.IV;
                 ICryptoTransform encryptor = aes.CreateEncryptor();
 
-                // Create the streams used for encryption.
                 using (MemoryStream msEncrypt = new MemoryStream())
                 {
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
@@ -53,13 +52,10 @@ namespace TaskAide.Infrastructure.Services
                     }
                 }
 
-                // Concating two arrays 'iv' and 'encryptedPlainText' because the encrypted string needs to have
-                // IV and encrypted string value in it. That's the only possible way to decrypt an encrypted connection string
                 byte[] cipherTextBytes = new byte[IV.Length + encrypteString.Length];
                 Buffer.BlockCopy(IV, 0, cipherTextBytes, 0, IV.Length);
                 Buffer.BlockCopy(encrypteString, 0, cipherTextBytes, IV.Length, encrypteString.Length);
-
-                // Return encrypted string  
+ 
                 return cipherTextBytes;
             }
         }
@@ -69,7 +65,6 @@ namespace TaskAide.Infrastructure.Services
             string? plainText = null;
             byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
 
-            // Extracting IV and connection string from ciphertext
             byte[] IV = cipherTextBytes.Take(16).ToArray();
             byte[] encryptedString = cipherTextBytes.Skip(16).ToArray();
 
@@ -85,7 +80,7 @@ namespace TaskAide.Infrastructure.Services
                     }
                 }
             }
-            // Return decrypted string
+
             return plainText;
         }
     }
